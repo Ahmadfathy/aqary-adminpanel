@@ -1,0 +1,14 @@
+{
+  "search": "Search...",
+  "language": "Language",
+  "theme": {
+    "light": "Light Mode",
+    "dark": "Dark Mode"
+  },
+  "profile": {
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "notifications": "Notifications",
+  "home": "Home"
+}
