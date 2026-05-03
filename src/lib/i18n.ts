@@ -25,9 +25,9 @@ const resources = {
   },
 }
 
-// Retrieve initial language from localStorage if available, otherwise 'en'
+// Retrieve initial language from localStorage if available, otherwise 'ar'
 const storedLang = localStorage.getItem('lang')
-let initialLang = 'en'
+let initialLang = 'ar'
 if (storedLang) {
   try {
     const parsed = JSON.parse(storedLang)
@@ -44,7 +44,7 @@ i18n
   .init({
     resources,
     lng: initialLang,
-    fallbackLng: 'en',
+    fallbackLng: 'ar',
     ns: ['common', 'menu'],
     defaultNS: 'common',
     interpolation: {
