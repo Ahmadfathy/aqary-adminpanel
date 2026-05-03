@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '../../lib/utils'
 import type { MenuItem } from '../../lib/menu'
@@ -41,7 +41,7 @@ export function SidebarItem({ item, level = 0 }: SidebarItemProps) {
   const hasChildren = item.children && item.children.length > 0
   const Icon = item.icon
 
-  const paddingStart = isCollapsed ? '0' : `${level * 12 + 16}px`
+  const paddingStart = isCollapsed ? '0' : `${level * 32 + 16}px`
   
   const content = (
     <>
@@ -67,10 +67,10 @@ export function SidebarItem({ item, level = 0 }: SidebarItemProps) {
       </div>
       {!isCollapsed && hasChildren && (
         <motion.div
-          animate={{ rotate: isOpen ? (isRTL ? 180 : 180) : 0 }}
+          animate={{ rotate: isOpen ? 90 : (isRTL ? 180 : 0) }}
           transition={{ duration: 0.2 }}
         >
-          <ChevronDown className="h-4 w-4 text-zinc-400 transition-colors group-hover:text-zinc-600 dark:group-hover:text-zinc-300" />
+          <ChevronRight className="h-4 w-4 text-zinc-400 transition-colors group-hover:text-zinc-600 dark:group-hover:text-zinc-300" />
         </motion.div>
       )}
     </>
@@ -81,6 +81,10 @@ export function SidebarItem({ item, level = 0 }: SidebarItemProps) {
     active && !hasChildren ? "bg-brand/10 dark:bg-brand/20" : "hover:bg-zinc-100 dark:hover:bg-zinc-800/50",
     isCollapsed ? "justify-center px-0" : "px-4"
   )
+
+  const paddingStyle = isCollapsed ? {} : {
+    [isRTL ? 'paddingRight' : 'paddingLeft']: paddingStart
+  }
 
   const ItemWrapper = isCollapsed && Icon ? (
     <TooltipProvider delayDuration={0}>
@@ -101,7 +105,7 @@ export function SidebarItem({ item, level = 0 }: SidebarItemProps) {
               )}
           </div>
         </TooltipTrigger>
-        <TooltipContent side={isRTL ? 'left' : 'right'} className="font-medium">
+        <TooltipContent side="right" className="font-medium">
           {t(item.labelKey.replace('menu:', ''))}
         </TooltipContent>
       </Tooltip>
@@ -112,7 +116,7 @@ export function SidebarItem({ item, level = 0 }: SidebarItemProps) {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={wrapperClassName}
-          style={{ paddingInlineStart: paddingStart }}
+          style={paddingStyle}
         >
           {content}
         </button>
@@ -120,12 +124,15 @@ export function SidebarItem({ item, level = 0 }: SidebarItemProps) {
         <Link 
           to={item.path || '#'} 
           className={cn(wrapperClassName, "relative")}
-          style={{ paddingInlineStart: paddingStart }}
+          style={paddingStyle}
         >
           {active && !hasChildren && (
              <motion.div 
                layoutId="active-bar"
-               className="absolute top-1 bottom-1 w-1 bg-brand rounded-full start-0"
+               className={cn(
+                 "absolute top-1 bottom-1 w-1 bg-brand rounded-full",
+                 isRTL ? "right-0" : "left-0"
+               )}
              />
           )}
           {content}

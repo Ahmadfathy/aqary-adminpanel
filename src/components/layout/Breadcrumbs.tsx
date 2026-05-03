@@ -37,7 +37,7 @@ export function Breadcrumbs() {
   const Chevron = isRTL ? ChevronLeft : ChevronRight
 
   return (
-    <nav aria-label="Breadcrumb" className="mb-4 flex items-center space-x-1 space-x-reverse text-sm text-zinc-500 rtl:space-x-reverse">
+    <nav aria-label="Breadcrumb" className="mb-4 flex items-center gap-1 text-sm text-zinc-500">
       <Link
         to="/"
         className="hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
