@@ -24,8 +24,13 @@ import { ContentMediaPage } from './pages/content/media'
 import { SettingsGeneralPage } from './pages/settings/general'
 import { SettingsSecurityPage } from './pages/settings/security'
 import { SettingsIntegrationsPage } from './pages/settings/integrations'
+import { LoginPage } from './pages/auth/login'
 
 export const router = createBrowserRouter([
+  {
+    path: '/login',
+    element: <LoginPage />,
+  },
   {
     path: '/',
     element: <AppShell />,

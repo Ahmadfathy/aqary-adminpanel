@@ -1,9 +1,7 @@
 import {
   LayoutDashboard,
-  BarChart,
   Users,
-  ShoppingCart,
-  FileText,
+  Home,
   Settings,
   type LucideIcon
 } from 'lucide-react'
@@ -24,44 +22,6 @@ export const menu: MenuItem[] = [
     path: '/dashboard',
   },
   {
-    id: 'analytics',
-    labelKey: 'menu:analytics',
-    icon: BarChart,
-    children: [
-      {
-        id: 'overview',
-        labelKey: 'menu:overview',
-        path: '/analytics/overview',
-      },
-      {
-        id: 'reports',
-        labelKey: 'menu:reports',
-        children: [
-          {
-            id: 'sales',
-            labelKey: 'menu:salesReport',
-            path: '/analytics/reports/sales',
-          },
-          {
-            id: 'traffic',
-            labelKey: 'menu:trafficReport',
-            path: '/analytics/reports/traffic',
-          },
-          {
-            id: 'behavior',
-            labelKey: 'menu:userBehavior',
-            path: '/analytics/reports/behavior',
-          },
-        ],
-      },
-      {
-        id: 'real-time',
-        labelKey: 'menu:realTime',
-        path: '/analytics/real-time',
-      },
-    ],
-  },
-  {
     id: 'users',
     labelKey: 'menu:userManagement',
     icon: Users,
@@ -72,106 +32,36 @@ export const menu: MenuItem[] = [
         path: '/users',
       },
       {
-        id: 'roles-permissions',
-        labelKey: 'menu:rolesPermissions',
-        children: [
-          {
-            id: 'roles',
-            labelKey: 'menu:roles',
-            path: '/users/roles',
-          },
-          {
-            id: 'permissions',
-            labelKey: 'menu:permissions',
-            path: '/users/permissions',
-          },
-          {
-            id: 'access-logs',
-            labelKey: 'menu:accessLogs',
-            path: '/users/access-logs',
-          },
-        ],
-      },
-      {
-        id: 'invitations',
-        labelKey: 'menu:invitations',
-        path: '/users/invitations',
-      },
-    ],
-  },
-  {
-    id: 'ecommerce',
-    labelKey: 'menu:ecommerce',
-    icon: ShoppingCart,
-    children: [
-      {
-        id: 'products',
-        labelKey: 'menu:products',
-        children: [
-          {
-            id: 'all-products',
-            labelKey: 'menu:allProducts',
-            path: '/shop/products',
-          },
-          {
-            id: 'categories',
-            labelKey: 'menu:categories',
-            path: '/shop/categories',
-          },
-          {
-            id: 'inventory',
-            labelKey: 'menu:inventory',
-            path: '/shop/inventory',
-          },
-        ],
-      },
-      {
-        id: 'orders',
-        labelKey: 'menu:orders',
-        path: '/shop/orders',
-      },
-      {
         id: 'customers',
         labelKey: 'menu:customers',
-        path: '/shop/customers',
+        path: '/customers',
+      },
+      {
+        id: 'real-estate-offices',
+        labelKey: 'menu:realEstateOffices',
+        path: '/offices',
       },
     ],
   },
   {
-    id: 'content',
-    labelKey: 'menu:content',
-    icon: FileText,
+    id: 'real-estate',
+    labelKey: 'menu:realEstate',
+    icon: Home,
     children: [
       {
-        id: 'pages',
-        labelKey: 'menu:pages',
-        path: '/content/pages',
+        id: 'sale',
+        labelKey: 'menu:sale',
+        path: '/real-estate/sale',
       },
       {
-        id: 'blog',
-        labelKey: 'menu:blog',
-        children: [
-          {
-            id: 'posts',
-            labelKey: 'menu:posts',
-            path: '/content/blog/posts',
-          },
-          {
-            id: 'comments',
-            labelKey: 'menu:comments',
-            path: '/content/blog/comments',
-          },
-          {
-            id: 'tags',
-            labelKey: 'menu:tags',
-            path: '/content/blog/tags',
-          },
-        ],
+        id: 'rent',
+        labelKey: 'menu:rent',
+        path: '/real-estate/rent',
       },
       {
-        id: 'media',
-        labelKey: 'menu:mediaLibrary',
-        path: '/content/media',
+        id: 'buy',
+        labelKey: 'menu:buy',
+        path: '/real-estate/buy',
       },
     ],
   },
@@ -181,19 +71,24 @@ export const menu: MenuItem[] = [
     icon: Settings,
     children: [
       {
-        id: 'general',
-        labelKey: 'menu:general',
+        id: 'general-settings',
+        labelKey: 'menu:generalSettings',
         path: '/settings/general',
       },
       {
-        id: 'security',
-        labelKey: 'menu:security',
-        path: '/settings/security',
+        id: 'countries',
+        labelKey: 'menu:countries',
+        path: '/settings/countries',
       },
       {
-        id: 'integrations',
-        labelKey: 'menu:integrations',
-        path: '/settings/integrations',
+        id: 'cities',
+        labelKey: 'menu:cities',
+        path: '/settings/cities',
+      },
+      {
+        id: 'regions',
+        labelKey: 'menu:regions',
+        path: '/settings/regions',
       },
     ],
   },
