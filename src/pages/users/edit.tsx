@@ -3,6 +3,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AdminUsersAPI } from '@/lib/api-client'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Card, CardContent } from '@/components/ui/card'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Loader2, ArrowRight, Save, Phone, Mail, Lock, User } from 'lucide-react'
 
 const countryCodes = [
@@ -42,9 +46,8 @@ export function EditUserPage() {
       try {
         const response = await AdminUsersAPI.getUser(id)
         let user = response.data?.data?.data || response.data?.data || response.data;
-        if (user && user.user) user = user.user; // Fallback for nested { user: {...} } object
+        if (user && user.user) user = user.user;
         
-        // Handle name splitting if API returns full name instead of first/last
         let firstName = user.first_name || '';
         let lastName = user.last_name || '';
         if (!firstName && !lastName && user.name) {
@@ -75,8 +78,12 @@ export function EditUserPage() {
     fetchUser()
   }, [id])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({ ...prev, [name]: value }))
   }
 
@@ -91,13 +98,11 @@ export function EditUserPage() {
     setIsLoading(true)
     setErrors([])
     
-    // Auto fill name if empty
     const payload: any = { ...formData }
     if (!payload.name) {
       payload.name = `${payload.first_name} ${payload.last_name}`.trim()
     }
 
-    // Remove password if it's empty so we don't overwrite it with empty string
     if (!payload.password) {
       delete payload.password
       delete payload.password_confirmation
@@ -142,198 +147,200 @@ export function EditUserPage() {
         </div>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] overflow-hidden shadow-sm p-6 sm:p-8"
-      >
-        {errors.length > 0 && (
-          <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-sm">
-            <ul className="list-disc list-inside space-y-1">
-              {errors.map((error, idx) => (
-                <li key={idx}>{error}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">الاسم الأول</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <User className="h-4 w-4 text-zinc-400" />
-                </div>
-                <input
-                  type="text"
-                  name="first_name"
-                  value={formData.first_name}
-                  onChange={handleChange}
-                  className="block w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 py-2.5 pr-10 pl-4 text-sm text-zinc-900 dark:text-zinc-100 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors outline-none"
-                  placeholder="محمد"
-                />
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+        <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] shadow-sm overflow-hidden">
+          <CardContent className="p-6 sm:p-8">
+            {errors.length > 0 && (
+              <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-sm">
+                <ul className="list-disc list-inside space-y-1">
+                  {errors.map((error, idx) => (
+                    <li key={idx}>{error}</li>
+                  ))}
+                </ul>
               </div>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">الاسم الأخير</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <User className="h-4 w-4 text-zinc-400" />
-                </div>
-                <input
-                  type="text"
-                  name="last_name"
-                  value={formData.last_name}
-                  onChange={handleChange}
-                  className="block w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 py-2.5 pr-10 pl-4 text-sm text-zinc-900 dark:text-zinc-100 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors outline-none"
-                  placeholder="أحمد"
-                />
-              </div>
-            </div>
+            )}
 
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">البريد الإلكتروني</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 text-zinc-400" />
-                </div>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  dir="ltr"
-                  className="block w-full text-right rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 py-2.5 pr-10 pl-4 text-sm text-zinc-900 dark:text-zinc-100 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors outline-none"
-                  placeholder="example@email.com"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">رقم الهاتف</label>
-              <div className="flex gap-3">
-                <div className="w-32 shrink-0">
-                  <select
-                    name="country_code"
-                    value={formData.country_code}
-                    onChange={handleChange}
-                    className="block w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 py-2.5 px-3 text-sm text-zinc-900 dark:text-zinc-100 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors outline-none cursor-pointer"
-                    dir="ltr"
-                  >
-                    {countryCodes.map((c) => (
-                      <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="relative flex-1">
-                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                    <Phone className="h-4 w-4 text-zinc-400" />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label>الاسم الأول</Label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <User className="h-4 w-4 text-zinc-400" />
+                    </div>
+                    <Input
+                      type="text"
+                      name="first_name"
+                      value={formData.first_name}
+                      onChange={handleChange}
+                      className="pr-10"
+                      placeholder="محمد"
+                    />
                   </div>
-                  <input
-                    type="tel"
-                    name="mobile"
-                    value={formData.mobile}
-                    onChange={handleChange}
-                    required
-                    dir="ltr"
-                    className="block w-full text-right rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 py-2.5 pr-10 pl-4 text-sm text-zinc-900 dark:text-zinc-100 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors outline-none"
-                    placeholder="5X XXX XXXX"
-                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>الاسم الأخير</Label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <User className="h-4 w-4 text-zinc-400" />
+                    </div>
+                    <Input
+                      type="text"
+                      name="last_name"
+                      value={formData.last_name}
+                      onChange={handleChange}
+                      className="pr-10"
+                      placeholder="أحمد"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label>البريد الإلكتروني</Label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <Mail className="h-4 w-4 text-zinc-400" />
+                    </div>
+                    <Input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      dir="ltr"
+                      className="text-right pr-10"
+                      placeholder="example@email.com"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <Label>رقم الهاتف</Label>
+                  <div className="flex gap-3">
+                    <div className="w-32 shrink-0">
+                      <Select 
+                        value={formData.country_code} 
+                        onValueChange={(val) => handleSelectChange('country_code', val)}
+                        dir="ltr"
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Code" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {countryCodes.map((c) => (
+                            <SelectItem key={c.code} value={c.code}>{c.flag} {c.code}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="relative flex-1">
+                      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                        <Phone className="h-4 w-4 text-zinc-400" />
+                      </div>
+                      <Input
+                        type="tel"
+                        name="mobile"
+                        value={formData.mobile}
+                        onChange={handleChange}
+                        required
+                        dir="ltr"
+                        className="text-right pr-10"
+                        placeholder="5X XXX XXXX"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>كلمة المرور (اتركها فارغة لعدم التغيير)</Label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <Lock className="h-4 w-4 text-zinc-400" />
+                    </div>
+                    <Input
+                      type="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      dir="ltr"
+                      className="text-right pr-10"
+                      placeholder="********"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>تأكيد كلمة المرور</Label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                      <Lock className="h-4 w-4 text-zinc-400" />
+                    </div>
+                    <Input
+                      type="password"
+                      name="password_confirmation"
+                      value={formData.password_confirmation}
+                      onChange={handleChange}
+                      dir="ltr"
+                      className="text-right pr-10"
+                      placeholder="********"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>نوع الحساب</Label>
+                  <Select value={formData.user_type} onValueChange={(val) => handleSelectChange('user_type', val)} dir="rtl">
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر نوع الحساب" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="client">عميل</SelectItem>
+                      <SelectItem value="office">مكتب عقاري</SelectItem>
+                      <SelectItem value="admin">مدير</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>حالة الحساب</Label>
+                  <Select value={formData.status} onValueChange={(val) => handleSelectChange('status', val)} dir="rtl">
+                    <SelectTrigger>
+                      <SelectValue placeholder="اختر حالة الحساب" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1">نشط</SelectItem>
+                      <SelectItem value="0">غير نشط</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">كلمة المرور (اتركها فارغة لعدم التغيير)</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-zinc-400" />
-                </div>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  dir="ltr"
-                  className="block w-full text-right rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 py-2.5 pr-10 pl-4 text-sm text-zinc-900 dark:text-zinc-100 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors outline-none"
-                  placeholder="********"
-                />
+              <div className="pt-4 flex justify-end gap-3 border-t border-zinc-200 dark:border-zinc-800 mt-6">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={() => navigate('/users')}
+                >
+                  إلغاء
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={isLoading}
+                  className="bg-teal-600 hover:bg-teal-700 text-white gap-2 min-w-[120px]"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      حفظ التعديلات
+                    </>
+                  )}
+                </Button>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">تأكيد كلمة المرور</label>
-              <div className="relative">
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-zinc-400" />
-                </div>
-                <input
-                  type="password"
-                  name="password_confirmation"
-                  value={formData.password_confirmation}
-                  onChange={handleChange}
-                  dir="ltr"
-                  className="block w-full text-right rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 py-2.5 pr-10 pl-4 text-sm text-zinc-900 dark:text-zinc-100 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors outline-none"
-                  placeholder="********"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">نوع الحساب</label>
-              <select
-                name="user_type"
-                value={formData.user_type}
-                onChange={handleChange}
-                className="block w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 py-2.5 px-4 text-sm text-zinc-900 dark:text-zinc-100 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors outline-none cursor-pointer"
-              >
-                <option value="client">عميل</option>
-                <option value="office">مكتب عقاري</option>
-                <option value="admin">مدير</option>
-              </select>
-            </div>
-            
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">حالة الحساب</label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="block w-full rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50 py-2.5 px-4 text-sm text-zinc-900 dark:text-zinc-100 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-colors outline-none cursor-pointer"
-              >
-                <option value="1">نشط</option>
-                <option value="0">غير نشط</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="pt-4 flex justify-end gap-3 border-t border-zinc-200 dark:border-zinc-800 mt-6">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => navigate('/users')}
-              className="border-zinc-200 dark:border-zinc-800"
-            >
-              إلغاء
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={isLoading}
-              className="bg-teal-600 hover:bg-teal-700 text-white gap-2 min-w-[120px]"
-            >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <>
-                  <Save className="w-4 h-4" />
-                  حفظ التعديلات
-                </>
-              )}
-            </Button>
-          </div>
-        </form>
+            </form>
+          </CardContent>
+        </Card>
       </motion.div>
     </div>
   )
