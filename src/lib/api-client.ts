@@ -10,6 +10,7 @@ export const AuthAPI = {
 
 export const AdminProfileAPI = {
   getProfile: () => api.get(`${PREFIX}/admin/profile`),
+  updateProfile: (data: any) => api.put(`${PREFIX}/admin/profile`, data),
 };
 
 export const AdminDashboardAPI = {

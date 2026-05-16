@@ -1,5 +1,6 @@
 import { Menu, Search, Bell, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { useSidebar } from '../../hooks/useSidebar'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -18,6 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 export function TopBar() {
   const { t } = useTranslation('common')
   const { toggle, toggleMobile } = useSidebar()
+  const navigate = useNavigate()
 
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md px-4 sm:gap-x-6 sm:px-6 lg:px-8">
@@ -88,12 +90,13 @@ export function TopBar() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
+              <DropdownMenuItem className="cursor-pointer" onClick={() => navigate('/settings/profile')}>
                 <User className="me-2 h-4 w-4" />
-                <span>{t('profile.settings')}</span>
+                <span>صفحتي الشخصية</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer text-destructive focus:text-destructive">
-                <span>{t('profile.logout')}</span>
+              <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-500/10 font-medium">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="me-2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                <span>تسجيل الخروج</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
