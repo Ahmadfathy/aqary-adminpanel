@@ -26,6 +26,7 @@ import { ContentMediaPage } from './pages/content/media'
 import { SettingsGeneralPage } from './pages/settings/general'
 import { SettingsSecurityPage } from './pages/settings/security'
 import { SettingsIntegrationsPage } from './pages/settings/integrations'
+import { CountriesPage } from './pages/settings/countries'
 import { ProfileViewPage } from './pages/settings/profile'
 import { ProfileEditPage } from './pages/settings/profile/edit'
 import { LoginPage } from './pages/auth/login'
@@ -159,6 +160,10 @@ export const router = createBrowserRouter([
       {
         path: 'settings/integrations',
         element: <SettingsIntegrationsPage />,
+      },
+      {
+        path: 'settings/countries',
+        element: <CountriesPage />,
       },
       {
         path: 'settings/profile',

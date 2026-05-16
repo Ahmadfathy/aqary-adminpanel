@@ -65,6 +65,12 @@ export const AdminAppointmentsAPI = {
   updateStatus: (id: string | number, status: string) => api.patch(`${PREFIX}/admin/appointments/${id}/status`, { status }),
 };
 
+export const AdminLocationsAPI = {
+  getCountries: (params?: any) => api.get(`${PREFIX}/admin/countries`, { params }),
+  getCities: (params?: any) => api.get(`${PREFIX}/admin/cities`, { params }),
+  getRegions: (params?: any) => api.get(`${PREFIX}/admin/regions`, { params }),
+};
+
 export const AdminDealsAPI = {
   getDeals: (params?: any) => api.get(`${PREFIX}/admin/deals`, { params }),
   getDeal: (id: string | number) => api.get(`${PREFIX}/admin/deals/${id}`),
