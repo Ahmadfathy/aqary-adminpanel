@@ -130,7 +130,7 @@ export function ProfileViewPage() {
                   <Mail className="w-4 h-4" />
                   <span>البريد الإلكتروني</span>
                 </div>
-                <p className="font-medium text-zinc-900 dark:text-zinc-100" dir="ltr">{profile.email || '—'}</p>
+                <p className="font-medium text-zinc-900 dark:text-zinc-100 rtl:text-right" dir="ltr">{profile.email || '—'}</p>
               </div>
 
               <div className="space-y-1.5">
@@ -138,7 +138,7 @@ export function ProfileViewPage() {
                   <Phone className="w-4 h-4" />
                   <span>رقم الهاتف</span>
                 </div>
-                <p className="font-medium text-zinc-900 dark:text-zinc-100" dir="ltr">
+                <p className="font-medium text-zinc-900 dark:text-zinc-100 rtl:text-right" dir="ltr">
                   {profile.country_code ? `${profile.country_code} ${profile.mobile}` : profile.mobile || '—'}
                 </p>
               </div>

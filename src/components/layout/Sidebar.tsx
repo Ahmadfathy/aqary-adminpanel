@@ -21,7 +21,7 @@ function SidebarContent() {
           <div className="flex h-10 w-10 shrink-0 items-center justify-center">
             <img src={logo} alt="Logo" className="h-full w-full object-contain" />
           </div>
-          {!isCollapsed && <span className="text-xl tracking-tight">عقاري <span className="text-brand">العراقية</span></span>}
+          {!isCollapsed && <span className="text-xl tracking-tight">عقاري</span>}
         </Link>
       </div>
       <ScrollArea className="flex-1 py-4" dir={isRTL ? "rtl" : "ltr"}>

@@ -34,7 +34,7 @@ export const menu: MenuItem[] = [
       {
         id: 'customers',
         labelKey: 'menu:customers',
-        path: '/customers',
+        path: '/shop/customers',
       },
       {
         id: 'real-estate-offices',

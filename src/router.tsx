@@ -33,6 +33,7 @@ import { ProfileViewPage } from './pages/settings/profile'
 import { ProfileEditPage } from './pages/settings/profile/edit'
 import { LoginPage } from './pages/auth/login'
 import { PropertiesPage } from './pages/properties'
+import { RealEstateOfficesPage } from './pages/users/offices'
 
 export const router = createBrowserRouter([
   {
@@ -98,6 +99,10 @@ export const router = createBrowserRouter([
       {
         path: 'users/invitations',
         element: <UsersInvitationsPage />,
+      },
+      {
+        path: 'offices',
+        element: <RealEstateOfficesPage />,
       },
       {
         path: 'real-estate/sale',
