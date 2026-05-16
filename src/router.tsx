@@ -27,6 +27,8 @@ import { SettingsGeneralPage } from './pages/settings/general'
 import { SettingsSecurityPage } from './pages/settings/security'
 import { SettingsIntegrationsPage } from './pages/settings/integrations'
 import { CountriesPage } from './pages/settings/countries'
+import { CitiesPage } from './pages/settings/cities'
+import { RegionsPage } from './pages/settings/regions'
 import { ProfileViewPage } from './pages/settings/profile'
 import { ProfileEditPage } from './pages/settings/profile/edit'
 import { LoginPage } from './pages/auth/login'
@@ -164,6 +166,14 @@ export const router = createBrowserRouter([
       {
         path: 'settings/countries',
         element: <CountriesPage />,
+      },
+      {
+        path: 'settings/cities',
+        element: <CitiesPage />,
+      },
+      {
+        path: 'settings/regions',
+        element: <RegionsPage />,
       },
       {
         path: 'settings/profile',
