@@ -4,6 +4,7 @@ import { LogIn, Phone, Lock, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth.store';
 import { api } from '../../lib/api';
+import { AuthAPI } from '../../lib/api-client';
 import logo from '../../assets/logo.png';
 
 const countryCodes = [
@@ -34,7 +35,7 @@ export function LoginPage() {
     setError('');
     
     try {
-      const response = await api.post('v1/auth/login', {
+      const response = await AuthAPI.login({
         country_code: selectedCode,
         mobile: phone,
         password: password

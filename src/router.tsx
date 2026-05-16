@@ -7,6 +7,8 @@ import { AnalyticsReportsTrafficPage } from './pages/analytics/reports/traffic'
 import { AnalyticsReportsBehaviorPage } from './pages/analytics/reports/behavior'
 import { AnalyticsRealTimePage } from './pages/analytics/real-time'
 import { UsersPage } from './pages/users'
+import { CreateUserPage } from './pages/users/create'
+import { EditUserPage } from './pages/users/edit'
 import { UsersRolesPage } from './pages/users/roles'
 import { UsersPermissionsPage } from './pages/users/permissions'
 import { UsersAccessLogsPage } from './pages/users/access-logs'
@@ -66,6 +68,14 @@ export const router = createBrowserRouter([
       {
         path: 'users',
         element: <UsersPage />,
+      },
+      {
+        path: 'users/create',
+        element: <CreateUserPage />,
+      },
+      {
+        path: 'users/:id/edit',
+        element: <EditUserPage />,
       },
       {
         path: 'users/roles',
