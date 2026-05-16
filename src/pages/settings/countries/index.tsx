@@ -10,7 +10,7 @@ import { Search, Plus, MoreVertical, Edit, Trash2, CheckCircle2, XCircle, Globe 
 import { DataTable } from '@/components/ui/data-table'
 
 export function CountriesPage() {
-  const { t } = useTranslation('menu')
+  useTranslation('menu')
   const [countries, setCountries] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -85,7 +85,7 @@ export function CountriesPage() {
       {
         id: "actions",
         header: "",
-        cell: ({ row }) => {
+        cell: () => {
           return (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

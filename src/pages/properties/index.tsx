@@ -21,7 +21,7 @@ import {
 import { DataTable } from '@/components/ui/data-table'
 
 export function PropertiesPage() {
-  const { t } = useTranslation('menu')
+  useTranslation('menu')
   const navigate = useNavigate()
   const location = useLocation()
   

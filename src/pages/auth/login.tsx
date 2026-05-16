@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { LogIn, Phone, Lock, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/auth.store';
-import { api } from '../../lib/api';
 import { AuthAPI } from '../../lib/api-client';
 import logo from '../../assets/logo.png';
 
