@@ -55,6 +55,7 @@ export const AdminPropertiesAPI = {
   getProperty: (id: string | number) => api.get(`${PREFIX}/admin/properties/${id}`),
   approveProperty: (id: string | number) => api.patch(`${PREFIX}/admin/properties/${id}/status`, { status: 'approved' }),
   rejectProperty: (id: string | number, reason?: string) => api.patch(`${PREFIX}/admin/properties/${id}/status`, { status: 'rejected', rejection_reason: reason }),
+  deleteProperty: (id: string | number) => api.delete(`${PREFIX}/admin/properties/${id}`),
   getPropertyImages: (id: string | number) => api.get(`${PREFIX}/admin/properties/${id}/images`),
 };
 

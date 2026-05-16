@@ -29,6 +29,7 @@ import { SettingsIntegrationsPage } from './pages/settings/integrations'
 import { ProfileViewPage } from './pages/settings/profile'
 import { ProfileEditPage } from './pages/settings/profile/edit'
 import { LoginPage } from './pages/auth/login'
+import { PropertiesPage } from './pages/properties'
 
 export const router = createBrowserRouter([
   {
@@ -94,6 +95,18 @@ export const router = createBrowserRouter([
       {
         path: 'users/invitations',
         element: <UsersInvitationsPage />,
+      },
+      {
+        path: 'real-estate/sale',
+        element: <PropertiesPage />,
+      },
+      {
+        path: 'real-estate/rent',
+        element: <PropertiesPage />,
+      },
+      {
+        path: 'real-estate/buy',
+        element: <PropertiesPage />,
       },
       {
         path: 'shop/products',
