@@ -4,9 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import type { ColumnDef } from '@tanstack/react-table'
 import { AdminUsersAPI } from '@/lib/api-client'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
-import { UserPlus, Search, Filter, MoreVertical, Edit, Trash2, CheckCircle2, XCircle } from 'lucide-react'
+import { UserPlus, Search, MoreVertical, Edit, Trash2, CheckCircle2, XCircle } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import {
@@ -26,16 +25,15 @@ export function UsersPage() {
   const navigate = useNavigate()
   const [users, setUsers] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [search, setSearch] = useState('')
   const [userToDelete, setUserToDelete] = useState<number | null>(null)
 
   const fetchUsers = async () => {
     setIsLoading(true)
     try {
-      const response = await AdminUsersAPI.getUsers({ search })
+      const response = await AdminUsersAPI.getUsers({})
       let data = response.data?.data?.data || response.data?.data || response.data;
       if (!Array.isArray(data)) {
-         data = data?.items || data?.users || data?.data || [];
+        data = data?.items || data?.users || data?.data || [];
       }
       setUsers(Array.isArray(data) ? data : [])
     } catch (error) {
@@ -46,11 +44,8 @@ export function UsersPage() {
   }
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchUsers()
-    }, 500)
-    return () => clearTimeout(delayDebounceFn)
-  }, [search])
+    fetchUsers()
+  }, [])
 
   const toggleStatus = async (id: number) => {
     try {
@@ -76,18 +71,24 @@ export function UsersPage() {
       {
         accessorKey: "name",
         header: "المستخدم",
+        enableSorting: true,
         cell: ({ row }) => {
           const user = row.original
           return (
             <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 border border-zinc-200 dark:border-zinc-800">
+              <Avatar className="h-9 w-9 border border-zinc-200 dark:border-zinc-800">
                 <AvatarImage src={user.avatar || user.profile_picture} />
-                <AvatarFallback className="bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400">
+                <AvatarFallback className="bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 text-xs font-semibold">
                   {(user.name || user.first_name || 'U').substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-medium text-zinc-900 dark:text-white">{user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'بدون إسم'}</p>
+                <p className="font-medium text-zinc-900 dark:text-white text-sm">
+                  {user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'بدون إسم'}
+                </p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5" dir="ltr">
+                  {user.email || ''}
+                </p>
               </div>
             </div>
           )
@@ -96,21 +97,29 @@ export function UsersPage() {
       {
         accessorKey: "email",
         header: "معلومات الاتصال",
+        enableHiding: true,
         cell: ({ row }) => {
           const user = row.original
-          return <p dir="ltr" className="text-right text-zinc-600 dark:text-zinc-400">{user.email || user.mobile}</p>
+          return (
+            <p dir="ltr" className="text-right text-sm text-zinc-600 dark:text-zinc-400">
+              {user.mobile || '—'}
+            </p>
+          )
         },
       },
       {
         accessorKey: "user_type",
         header: "الدور",
+        enableSorting: true,
         cell: ({ row }) => {
           const user_type = row.original.user_type
           return (
             <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-              user_type === 'office' ? 'bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400' :
-              user_type === 'client' ? 'bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400' :
-              'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300'
+              user_type === 'office'
+                ? 'bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400'
+                : user_type === 'client'
+                ? 'bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400'
+                : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300'
             }`}>
               {user_type === 'office' ? 'مكتب عقاري' : user_type === 'client' ? 'عميل' : user_type || 'مستخدم'}
             </span>
@@ -120,12 +129,15 @@ export function UsersPage() {
       {
         accessorKey: "status",
         header: "الحالة",
+        enableSorting: true,
         cell: ({ row }) => {
           const status = row.original.status
           const isActive = status === true || status === 'active' || status === 1 || status === '1'
           return (
             <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-              isActive ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10' : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-500/10'
+              isActive
+                ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10'
+                : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-500/10'
             }`}>
               {isActive ? (
                 <><CheckCircle2 className="w-3.5 h-3.5" /> نشط</>
@@ -139,14 +151,20 @@ export function UsersPage() {
       {
         accessorKey: "created_at",
         header: "تاريخ الانضمام",
+        enableSorting: true,
         cell: ({ row }) => {
           const date = row.original.created_at
-          return <span className="text-zinc-600 dark:text-zinc-400">{date ? new Date(date).toLocaleDateString('ar-EG') : '—'}</span>
+          return (
+            <span className="text-sm text-zinc-600 dark:text-zinc-400">
+              {date ? new Date(date).toLocaleDateString('ar-EG') : '—'}
+            </span>
+          )
         },
       },
       {
         id: "actions",
         header: "",
+        enableHiding: false,
         cell: ({ row }) => {
           const user = row.original
           const isActive = user.status === true || user.status === 'active' || user.status === 1 || user.status === '1'
@@ -168,7 +186,10 @@ export function UsersPage() {
                     <><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-emerald-500">تفعيل الحساب</span></>
                   )}
                 </DropdownMenuItem>
-                <DropdownMenuItem className="gap-2 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-500/10" onClick={() => setUserToDelete(user.id)}>
+                <DropdownMenuItem
+                  className="gap-2 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-500/10"
+                  onClick={() => setUserToDelete(user.id)}
+                >
                   <Trash2 className="w-4 h-4" /> حذف المستخدم
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -187,11 +208,10 @@ export function UsersPage() {
           {t('userManagement') || 'إدارة المستخدمين'}
         </h1>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="gap-2 border-zinc-200 dark:border-zinc-800">
-            <Filter className="w-4 h-4" />
-            فلترة
-          </Button>
-          <Button onClick={() => navigate('/users/create')} className="bg-teal-600 hover:bg-teal-700 text-white gap-2">
+          <Button
+            onClick={() => navigate('/users/create')}
+            className="bg-teal-600 hover:bg-teal-700 text-white gap-2"
+          >
             <UserPlus className="w-4 h-4" />
             إضافة مستخدم
           </Button>
@@ -199,23 +219,12 @@ export function UsersPage() {
       </div>
 
       <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
-          <div className="relative max-w-md">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-            <Input
-              type="text"
-              placeholder="البحث بالاسم، البريد أو رقم الهاتف..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pr-10 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
-            />
-          </div>
-        </div>
-
-        <DataTable 
-          columns={columns} 
-          data={users} 
-          isLoading={isLoading} 
+        <DataTable
+          columns={columns}
+          data={users}
+          isLoading={isLoading}
+          searchKey="name"
+          searchPlaceholder="البحث بالاسم..."
           emptyIcon={<Search className="h-5 w-5 text-zinc-400" />}
           emptyMessage="لا يوجد مستخدمين يطابقون بحثك"
         />
@@ -231,7 +240,12 @@ export function UsersPage() {
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2 mt-4">
             <AlertDialogCancel className="mt-0 border-zinc-200 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800">إلغاء</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white" onClick={() => userToDelete && handleDelete(userToDelete)}>حذف نهائي</AlertDialogAction>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => userToDelete && handleDelete(userToDelete)}
+            >
+              حذف نهائي
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
