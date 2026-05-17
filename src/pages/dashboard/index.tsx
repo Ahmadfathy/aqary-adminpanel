@@ -28,7 +28,7 @@ export function DashboardPage() {
   const statCards = [
     {
       title: 'إجمالي المستخدمين',
-      value: stats?.total_users || stats?.users_count || 0,
+      value: stats?.users?.total ?? stats?.total_users ?? stats?.users_count ?? 0,
       icon: Users,
       color: 'from-blue-500/20 to-cyan-500/20',
       iconColor: 'text-cyan-500',
@@ -37,7 +37,7 @@ export function DashboardPage() {
     },
     {
       title: 'العقارات',
-      value: stats?.total_properties || stats?.properties_count || 0,
+      value: stats?.properties?.total ?? stats?.total_properties ?? stats?.properties_count ?? 0,
       icon: Home,
       color: 'from-emerald-500/20 to-teal-500/20',
       iconColor: 'text-emerald-500',
@@ -46,7 +46,7 @@ export function DashboardPage() {
     },
     {
       title: 'المواعيد',
-      value: stats?.total_appointments || stats?.appointments_count || 0,
+      value: stats?.appointments?.total ?? stats?.total_appointments ?? stats?.appointments_count ?? 0,
       icon: Calendar,
       color: 'from-orange-500/20 to-amber-500/20',
       iconColor: 'text-orange-500',
@@ -55,7 +55,7 @@ export function DashboardPage() {
     },
     {
       title: 'الصفقات',
-      value: stats?.total_deals || stats?.deals_count || 0,
+      value: stats?.deals?.total ?? stats?.total_deals ?? stats?.deals_count ?? 0,
       icon: Handshake,
       color: 'from-purple-500/20 to-pink-500/20',
       iconColor: 'text-purple-500',
