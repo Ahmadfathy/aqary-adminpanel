@@ -76,9 +76,9 @@ export const menu: MenuItem[] = [
         path: '/settings/general',
       },
       {
-        id: 'countries',
-        labelKey: 'menu:countries',
-        path: '/settings/countries',
+        id: 'governorates',
+        labelKey: 'menu:governorates',
+        path: '/settings/governorates',
       },
       {
         id: 'cities',
@@ -86,9 +86,9 @@ export const menu: MenuItem[] = [
         path: '/settings/cities',
       },
       {
-        id: 'regions',
-        labelKey: 'menu:regions',
-        path: '/settings/regions',
+        id: 'neighborhoods',
+        labelKey: 'menu:neighborhoods',
+        path: '/settings/neighborhoods',
       },
     ],
   },

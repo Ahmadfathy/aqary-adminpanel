@@ -60,10 +60,13 @@ export function CitiesPage() {
       },
       {
         accessorKey: "country",
-        header: "الدولة",
+        header: "المحافظة",
         cell: ({ row }) => {
           const city = row.original
-          return <span className="text-zinc-700 dark:text-zinc-300">{city.country?.name_ar || city.country_name || '—'}</span>
+          const govName = typeof city.country === 'object'
+            ? city.country?.name_ar || city.country?.name
+            : city.country_name || city.governorate_name
+          return <span className="text-zinc-700 dark:text-zinc-300">{govName || '—'}</span>
         },
       },
       {
@@ -119,8 +122,7 @@ export function CitiesPage() {
         </h1>
         <div className="flex items-center gap-3">
           <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-2">
-            <Plus className="w-4 h-4" />
-            إضافة مدينة
+            <Plus className="w-4 h-4" />إضافة مدينة
           </Button>
         </div>
       </div>

@@ -152,7 +152,7 @@ export function PropertiesPage() {
           return (
             <div className="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
               <MapPin className="w-3.5 h-3.5 text-zinc-400" />
-              <span className="line-clamp-1 max-w-[150px]">{property.address || property.city || property.location || 'غير محدد'}</span>
+              <span className="line-clamp-1 max-w-[150px]">{property.address || property.city?.name_ar || property.city?.name || property.city || property.location || 'غير محدد'}</span>
             </div>
           )
         },

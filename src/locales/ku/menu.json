@@ -9,7 +9,8 @@
   "rent": "کرێ",
   "buy": "کڕین",
   "settings": "ڕێکخستنەکان",
-  "general": "گشتی",
-  "security": "ئاسایش",
-  "integrations": "یەکخستنەکان"
+  "generalSettings": "ڕێکخستنە گشتیەکان",
+  "governorates": "پارێزگاکان",
+  "cities": "شارەکان",
+  "neighborhoods": "گەڕەکەکان"
 }

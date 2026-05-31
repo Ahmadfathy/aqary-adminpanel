@@ -26,13 +26,14 @@ import { ContentMediaPage } from './pages/content/media'
 import { SettingsGeneralPage } from './pages/settings/general'
 import { SettingsSecurityPage } from './pages/settings/security'
 import { SettingsIntegrationsPage } from './pages/settings/integrations'
-import { CountriesPage } from './pages/settings/countries'
+import { GovernoratesPage } from './pages/settings/governorates'
 import { CitiesPage } from './pages/settings/cities'
-import { RegionsPage } from './pages/settings/regions'
+import { NeighborhoodsPage } from './pages/settings/neighborhoods'
 import { ProfileViewPage } from './pages/settings/profile'
 import { ProfileEditPage } from './pages/settings/profile/edit'
 import { LoginPage } from './pages/auth/login'
 import { PropertiesPage } from './pages/properties'
+import { PropertyDetailPage } from './pages/properties/detail'
 import { RealEstateOfficesPage } from './pages/users/offices'
 
 export const router = createBrowserRouter([
@@ -117,6 +118,10 @@ export const router = createBrowserRouter([
         element: <PropertiesPage />,
       },
       {
+        path: 'real-estate/:id',
+        element: <PropertyDetailPage />,
+      },
+      {
         path: 'shop/products',
         element: <ShopProductsPage />,
       },
@@ -169,16 +174,16 @@ export const router = createBrowserRouter([
         element: <SettingsIntegrationsPage />,
       },
       {
-        path: 'settings/countries',
-        element: <CountriesPage />,
+        path: 'settings/governorates',
+        element: <GovernoratesPage />,
       },
       {
         path: 'settings/cities',
         element: <CitiesPage />,
       },
       {
-        path: 'settings/regions',
-        element: <RegionsPage />,
+        path: 'settings/neighborhoods',
+        element: <NeighborhoodsPage />,
       },
       {
         path: 'settings/profile',
