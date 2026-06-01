@@ -18,7 +18,7 @@ export function RegionsPage() {
   const fetchRegions = async () => {
     setIsLoading(true)
     try {
-      const response = await AdminLocationsAPI.getRegions({ search }).catch(() => ({ data: { data: [] } }))
+      const response = await AdminLocationsAPI.getAreas({ search }).catch(() => ({ data: { data: [] } }))
       let data = response?.data?.data?.data || response?.data?.data || response?.data || [];
       if (!Array.isArray(data)) {
         data = data?.items || data?.regions || data?.data || [];
