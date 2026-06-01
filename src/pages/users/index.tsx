@@ -30,7 +30,7 @@ export function UsersPage() {
   const fetchUsers = async () => {
     setIsLoading(true)
     try {
-      const response = await AdminUsersAPI.getUsers({})
+      const response = await AdminUsersAPI.getUsers({ user_type: 'admin' })
       let data = response.data?.data?.data || response.data?.data || response.data;
       if (!Array.isArray(data)) {
         data = data?.items || data?.users || data?.data || [];
@@ -205,7 +205,7 @@ export function UsersPage() {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-400">
-          {t('userManagement') || 'إدارة المستخدمين'}
+          {t('admins') || 'المشرفين'}
         </h1>
         <div className="flex items-center gap-3">
           <Button

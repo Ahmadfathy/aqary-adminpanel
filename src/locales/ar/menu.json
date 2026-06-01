@@ -1,7 +1,7 @@
 {
   "dashboard": "لوحة التحكم",
   "userManagement": "المستخدمين",
-  "allUsers": "المستخدمين",
+  "admins": "المشرفين",
   "customers": "العملاء",
   "realEstateOffices": "المكاتب العقارية",
   "realEstate": "العقارات",

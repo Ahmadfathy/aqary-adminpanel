@@ -99,9 +99,7 @@ export function EditUserPage() {
     setErrors([])
     
     const payload: any = { ...formData }
-    if (!payload.name) {
-      payload.name = `${payload.first_name} ${payload.last_name}`.trim()
-    }
+    payload.name = `${payload.first_name} ${payload.last_name}`.trim()
 
     if (!payload.password) {
       delete payload.password
@@ -242,7 +240,6 @@ export function EditUserPage() {
                         name="mobile"
                         value={formData.mobile}
                         onChange={handleChange}
-                        required
                         dir="ltr"
                         className="text-right pr-10"
                         placeholder="5X XXX XXXX"

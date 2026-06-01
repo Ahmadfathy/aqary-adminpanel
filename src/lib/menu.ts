@@ -27,12 +27,12 @@ export const menu: MenuItem[] = [
     icon: Users,
     children: [
       {
-        id: 'all-users',
-        labelKey: 'menu:allUsers',
+        id: 'admins',
+        labelKey: 'menu:admins',
         path: '/users',
       },
       {
-        id: 'customers',
+        id: 'clients',
         labelKey: 'menu:customers',
         path: '/shop/customers',
       },

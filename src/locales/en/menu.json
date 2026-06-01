@@ -1,7 +1,7 @@
 {
   "dashboard": "Dashboard",
   "userManagement": "Users",
-  "allUsers": "Users",
+  "admins": "Admins",
   "customers": "Customers",
   "realEstateOffices": "Real Estate Offices",
   "realEstate": "Real Estate",
