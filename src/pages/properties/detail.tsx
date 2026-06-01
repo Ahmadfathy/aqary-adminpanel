@@ -10,7 +10,7 @@ import {
 import {
   ArrowRight, Home, MapPin, DollarSign, CheckCircle, Ban, Loader2, Trash2,
   User, Calendar, Maximize2, BedDouble, Bath, ChevronLeft, ChevronRight,
-  Clock, Eye, Phone, Globe, Building2, Hash, AlertCircle, Sofa, HandshakeIcon,
+  Clock, Eye, Phone, Building2, Hash, AlertCircle, Sofa, HandshakeIcon,
   Layers, Wind, ImageOff, Car, Droplets, Shield, Flame, Wifi, Zap, Sun,
   Waves, Dumbbell, Leaf, Camera, Thermometer, type LucideIcon,
 } from 'lucide-react'
@@ -177,11 +177,18 @@ export function PropertyDetailPage() {
   const SIcon = s.Icon
 
   // images: primary_image first, then images array
+  const extractUrl = (img: any): string => {
+    if (!img) return ''
+    if (typeof img === 'string') return img
+    return img?.url || img?.path || img?.image || img?.src || img?.original || ''
+  }
+
   const imgs: string[] = []
-  if (property.primary_image) imgs.push(property.primary_image)
+  const primaryUrl = extractUrl(property.primary_image)
+  if (primaryUrl) imgs.push(primaryUrl)
   if (Array.isArray(property.images))
     property.images.forEach((img: any) => {
-      const url = typeof img === 'string' ? img : img?.url || img?.path || img?.image || ''
+      const url = extractUrl(img)
       if (url && !imgs.includes(url)) imgs.push(url)
     })
 
@@ -387,7 +394,7 @@ export function PropertyDetailPage() {
           {/* Location */}
           <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] p-5">
             <SectionTitle>الموقع</SectionTitle>
-            <Row icon={Globe} label="الدولة" value={n(property.country)} />
+            <Row icon={Building2} label="المحافظة" value={n(property.governorate) || n(property.state) || n(property.province)} />
             <Row icon={Building2} label="المدينة" value={n(property.city)} />
             <Row icon={MapPin} label="المنطقة" value={n(property.area)} />
             <Row icon={MapPin} label="العنوان التفصيلي" value={property.address || property.formatted_address} />

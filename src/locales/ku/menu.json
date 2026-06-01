@@ -5,12 +5,16 @@
   "customers": "کڕیاران",
   "realEstateOffices": "نووسینگەکانی خانووبەرە",
   "realEstate": "خانووبەرە",
+  "allProperties": "هەموو خانووبەرەکان",
   "sale": "فرۆشتن",
   "rent": "کرێ",
   "buy": "کڕین",
   "settings": "ڕێکخستنەکان",
-  "generalSettings": "ڕێکخستنە گشتیەکان",
+  "generalSettings": "ڕێکخستنە جوگرافیەکان",
+  "realEstateSettings": "ڕێکخستنەکانی خانووبەرە",
+  "propertyFeatures": "تایبەتمەندی و خزمەتگوزاریەکان",
+  "propertyTypes": "جۆرەکانی خانووبەرە",
   "governorates": "پارێزگاکان",
   "cities": "شارەکان",
-  "neighborhoods": "گەڕەکەکان"
+  "neighborhoods": "ناوچەکان"
 }

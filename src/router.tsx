@@ -29,6 +29,8 @@ import { SettingsIntegrationsPage } from './pages/settings/integrations'
 import { GovernoratesPage } from './pages/settings/governorates'
 import { CitiesPage } from './pages/settings/cities'
 import { NeighborhoodsPage } from './pages/settings/neighborhoods'
+import { PropertyFeaturesPage } from './pages/settings/property-features'
+import { PropertyTypesPage } from './pages/settings/property-types'
 import { ProfileViewPage } from './pages/settings/profile'
 import { ProfileEditPage } from './pages/settings/profile/edit'
 import { LoginPage } from './pages/auth/login'
@@ -106,15 +108,15 @@ export const router = createBrowserRouter([
         element: <RealEstateOfficesPage />,
       },
       {
+        path: 'real-estate/all',
+        element: <PropertiesPage />,
+      },
+      {
         path: 'real-estate/sale',
         element: <PropertiesPage />,
       },
       {
         path: 'real-estate/rent',
-        element: <PropertiesPage />,
-      },
-      {
-        path: 'real-estate/buy',
         element: <PropertiesPage />,
       },
       {
@@ -176,6 +178,14 @@ export const router = createBrowserRouter([
       {
         path: 'settings/governorates',
         element: <GovernoratesPage />,
+      },
+      {
+        path: 'settings/property-features',
+        element: <PropertyFeaturesPage />,
+      },
+      {
+        path: 'settings/property-types',
+        element: <PropertyTypesPage />,
       },
       {
         path: 'settings/cities',

@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import { AdminLocationsAPI } from '@/lib/api-client'
+import { AdminPropertyTypesAPI } from '@/lib/api-client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,13 +12,14 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Search, Plus, MoreVertical, Edit, Trash2, CheckCircle2, XCircle, MapPin, Loader2 } from 'lucide-react'
+import { Search, Plus, MoreVertical, Edit, Trash2, CheckCircle2, XCircle, Home, Loader2 } from 'lucide-react'
 import { DataTable } from '@/components/ui/data-table'
 
 const empty = { name_ar: '', name_en: '', status: '1' }
 
-export function CitiesPage() {
-  const [cities, setCities] = useState<any[]>([])
+export function PropertyTypesPage() {
+  const [types, setTypes] = useState<any[]>([])
+  const [filtered, setFiltered] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -26,26 +27,30 @@ export function CitiesPage() {
   const [form, setForm] = useState({ ...empty })
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
-  const [cityToDelete, setCityToDelete] = useState<any>(null)
+  const [itemToDelete, setItemToDelete] = useState<any>(null)
 
-  const fetchCities = async () => {
+  const fetchTypes = async () => {
     setIsLoading(true)
     try {
-      const response = await AdminLocationsAPI.getCities({ search })
-      let data = response?.data?.data?.data || response?.data?.data || response?.data || []
-      if (!Array.isArray(data)) data = data?.items || data?.cities || data?.data || []
-      setCities(Array.isArray(data) ? data : [])
+      const response = await AdminPropertyTypesAPI.getTypes()
+      const data = response?.data?.data?.property_types || response?.data?.property_types || []
+      setTypes(Array.isArray(data) ? data : [])
     } catch {
-      setCities([])
+      setTypes([])
     } finally {
       setIsLoading(false)
     }
   }
 
+  useEffect(() => { fetchTypes() }, [])
+
   useEffect(() => {
-    const t = setTimeout(fetchCities, 500)
-    return () => clearTimeout(t)
-  }, [search])
+    const q = search.toLowerCase()
+    setFiltered(q ? types.filter(t =>
+      (t.name_ar || '').toLowerCase().includes(q) ||
+      (t.name_en || '').toLowerCase().includes(q)
+    ) : types)
+  }, [search, types])
 
   const openAdd = () => {
     setEditing(null)
@@ -54,70 +59,69 @@ export function CitiesPage() {
     setSheetOpen(true)
   }
 
-  const openEdit = (city: any) => {
-    setEditing(city)
+  const openEdit = (item: any) => {
+    setEditing(item)
     setForm({
-      name_ar: city.name_ar || city.name || '',
-      name_en: city.name_en || '',
-      status: city.status === 1 || city.status === true || city.status === 'active' ? '1' : '0',
+      name_ar: item.name_ar || item.name || '',
+      name_en: item.name_en || '',
+      status: item.status === 1 || item.status === true || item.status === 'active' ? '1' : '0',
     })
     setErrors([])
     setSheetOpen(true)
   }
 
   const handleSave = async () => {
-    if (!form.name_ar.trim()) {
-      setErrors(['الاسم بالعربي مطلوب'])
-      return
-    }
+    if (!form.name_ar.trim()) { setErrors(['الاسم بالعربي مطلوب']); return }
     setSaving(true)
     setErrors([])
     try {
       const payload = { name_ar: form.name_ar, name_en: form.name_en, status: Number(form.status) }
       if (editing) {
-        await AdminLocationsAPI.updateCity(editing.id, payload)
+        await AdminPropertyTypesAPI.updateType(editing.id, payload)
       } else {
-        await AdminLocationsAPI.createCity(payload)
+        await AdminPropertyTypesAPI.createType(payload)
       }
       setSheetOpen(false)
-      fetchCities()
+      fetchTypes()
     } catch (err: any) {
       const data = err.response?.data
-      if (data?.errors) {
-        setErrors(Object.values(data.errors).flat() as string[])
-      } else {
-        setErrors([data?.message || 'حدث خطأ، يرجى المحاولة مرة أخرى'])
-      }
+      if (data?.errors) setErrors(Object.values(data.errors).flat() as string[])
+      else setErrors([data?.message || 'حدث خطأ، يرجى المحاولة مرة أخرى'])
     } finally {
       setSaving(false)
     }
   }
 
   const handleDelete = async () => {
-    if (!cityToDelete) return
+    if (!itemToDelete) return
     try {
-      await AdminLocationsAPI.deleteCity(cityToDelete.id)
-      setCityToDelete(null)
-      fetchCities()
-    } catch {
-      setCityToDelete(null)
-    }
+      await AdminPropertyTypesAPI.deleteType(itemToDelete.id)
+      setItemToDelete(null)
+      fetchTypes()
+    } catch { setItemToDelete(null) }
+  }
+
+  const handleToggle = async (item: any) => {
+    try {
+      await AdminPropertyTypesAPI.toggleStatus(item.id)
+      fetchTypes()
+    } catch { /* ignore */ }
   }
 
   const columns = useMemo<ColumnDef<any>[]>(() => [
     {
       accessorKey: 'name_ar',
-      header: 'المدينة',
+      header: 'نوع العقار',
       cell: ({ row }) => {
-        const city = row.original
+        const t = row.original
         return (
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 rounded bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-              <MapPin className="w-4 h-4 text-zinc-500" />
+              <Home className="w-4 h-4 text-zinc-500" />
             </div>
             <div>
-              <p className="font-medium text-zinc-900 dark:text-white">{city.name_ar || city.name || '—'}</p>
-              {city.name_en && <p className="text-xs text-zinc-500">{city.name_en}</p>}
+              <p className="font-medium text-zinc-900 dark:text-white">{t.name_ar || t.name || '—'}</p>
+              {t.name_en && <p className="text-xs text-zinc-500">{t.name_en}</p>}
             </div>
           </div>
         )
@@ -143,13 +147,18 @@ export function CitiesPage() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500"><MoreVertical className="w-4 h-4" /></Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40 dark:bg-zinc-900 dark:border-zinc-800">
+          <DropdownMenuContent align="end" className="w-44 dark:bg-zinc-900 dark:border-zinc-800">
             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openEdit(row.original)}>
               <Edit className="w-4 h-4" />تعديل
             </DropdownMenuItem>
+            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => handleToggle(row.original)}>
+              {row.original.status === 1 || row.original.status === true || row.original.status === 'active'
+                ? <><XCircle className="w-4 h-4 text-orange-500" /><span className="text-orange-500">تعطيل</span></>
+                : <><CheckCircle2 className="w-4 h-4 text-emerald-500" /><span className="text-emerald-500">تفعيل</span></>}
+            </DropdownMenuItem>
             <DropdownMenuItem
               className="gap-2 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-500/10"
-              onClick={() => setCityToDelete(row.original)}
+              onClick={() => setItemToDelete(row.original)}
             >
               <Trash2 className="w-4 h-4" />حذف
             </DropdownMenuItem>
@@ -163,10 +172,10 @@ export function CitiesPage() {
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-400">
-          المدن
+          أنواع العقارات
         </h1>
         <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-2" onClick={openAdd}>
-          <Plus className="w-4 h-4" />إضافة مدينة
+          <Plus className="w-4 h-4" />إضافة نوع
         </Button>
       </div>
 
@@ -175,7 +184,7 @@ export function CitiesPage() {
           <div className="relative max-w-md">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
             <Input
-              placeholder="البحث في المدن..."
+              placeholder="البحث في أنواع العقارات..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="pr-10 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
@@ -184,18 +193,17 @@ export function CitiesPage() {
         </div>
         <DataTable
           columns={columns}
-          data={cities}
+          data={filtered}
           isLoading={isLoading}
-          emptyIcon={<MapPin className="h-5 w-5 text-zinc-400" />}
-          emptyMessage="لا يوجد مدن مضافة حتى الآن."
+          emptyIcon={<Home className="h-5 w-5 text-zinc-400" />}
+          emptyMessage="لا توجد أنواع عقارات مضافة حتى الآن."
         />
       </Card>
 
-      {/* Add / Edit Sheet */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="left" className="w-full sm:max-w-md dark:bg-zinc-950 dark:border-zinc-800" dir="rtl">
           <SheetHeader className="mb-6">
-            <SheetTitle className="text-zinc-900 dark:text-white">{editing ? 'تعديل المدينة' : 'إضافة مدينة جديدة'}</SheetTitle>
+            <SheetTitle className="text-zinc-900 dark:text-white">{editing ? 'تعديل النوع' : 'إضافة نوع جديد'}</SheetTitle>
           </SheetHeader>
 
           {errors.length > 0 && (
@@ -207,20 +215,11 @@ export function CitiesPage() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>الاسم بالعربي <span className="text-red-500">*</span></Label>
-              <Input
-                value={form.name_ar}
-                onChange={e => setForm(p => ({ ...p, name_ar: e.target.value }))}
-                placeholder="مثال: بغداد"
-              />
+              <Input value={form.name_ar} onChange={e => setForm(p => ({ ...p, name_ar: e.target.value }))} placeholder="مثال: شقة" />
             </div>
             <div className="space-y-2">
               <Label>الاسم بالإنجليزي</Label>
-              <Input
-                value={form.name_en}
-                onChange={e => setForm(p => ({ ...p, name_en: e.target.value }))}
-                placeholder="e.g. Baghdad"
-                dir="ltr"
-              />
+              <Input value={form.name_en} onChange={e => setForm(p => ({ ...p, name_en: e.target.value }))} placeholder="e.g. Apartment" dir="ltr" />
             </div>
             <div className="space-y-2">
               <Label>الحالة</Label>
@@ -236,21 +235,20 @@ export function CitiesPage() {
 
           <div className="flex gap-3 mt-8">
             <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white gap-2" onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              {editing ? 'حفظ التعديلات' : 'إضافة المدينة'}
+              {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+              {editing ? 'حفظ التعديلات' : 'إضافة النوع'}
             </Button>
             <Button variant="outline" onClick={() => setSheetOpen(false)} disabled={saving}>إلغاء</Button>
           </div>
         </SheetContent>
       </Sheet>
 
-      {/* Delete confirm */}
-      <AlertDialog open={!!cityToDelete} onOpenChange={open => !open && setCityToDelete(null)}>
+      <AlertDialog open={!!itemToDelete} onOpenChange={open => !open && setItemToDelete(null)}>
         <AlertDialogContent className="dark:bg-[#0f0f11] dark:border-zinc-800">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-right text-zinc-900 dark:text-zinc-100">تأكيد الحذف</AlertDialogTitle>
             <AlertDialogDescription className="text-right text-zinc-500 dark:text-zinc-400">
-              هل أنت متأكد من حذف مدينة "{cityToDelete?.name_ar || cityToDelete?.name}"؟ لا يمكن التراجع عن هذا الإجراء.
+              هل أنت متأكد من حذف "{itemToDelete?.name_ar || itemToDelete?.name}"؟ لا يمكن التراجع عن هذا الإجراء.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2 mt-4">

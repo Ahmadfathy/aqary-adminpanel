@@ -49,6 +49,11 @@ export const menu: MenuItem[] = [
     icon: Home,
     children: [
       {
+        id: 'all-properties',
+        labelKey: 'menu:allProperties',
+        path: '/real-estate/all',
+      },
+      {
         id: 'sale',
         labelKey: 'menu:sale',
         path: '/real-estate/sale',
@@ -57,11 +62,6 @@ export const menu: MenuItem[] = [
         id: 'rent',
         labelKey: 'menu:rent',
         path: '/real-estate/rent',
-      },
-      {
-        id: 'buy',
-        labelKey: 'menu:buy',
-        path: '/real-estate/buy',
       },
     ],
   },
@@ -73,22 +73,34 @@ export const menu: MenuItem[] = [
       {
         id: 'general-settings',
         labelKey: 'menu:generalSettings',
-        path: '/settings/general',
+        children: [
+          {
+            id: 'cities',
+            labelKey: 'menu:cities',
+            path: '/settings/cities',
+          },
+          {
+            id: 'neighborhoods',
+            labelKey: 'menu:neighborhoods',
+            path: '/settings/neighborhoods',
+          },
+        ],
       },
       {
-        id: 'governorates',
-        labelKey: 'menu:governorates',
-        path: '/settings/governorates',
-      },
-      {
-        id: 'cities',
-        labelKey: 'menu:cities',
-        path: '/settings/cities',
-      },
-      {
-        id: 'neighborhoods',
-        labelKey: 'menu:neighborhoods',
-        path: '/settings/neighborhoods',
+        id: 'real-estate-settings',
+        labelKey: 'menu:realEstateSettings',
+        children: [
+          {
+            id: 'property-features',
+            labelKey: 'menu:propertyFeatures',
+            path: '/settings/property-features',
+          },
+          {
+            id: 'property-types',
+            labelKey: 'menu:propertyTypes',
+            path: '/settings/property-types',
+          },
+        ],
       },
     ],
   },

@@ -5,12 +5,16 @@
   "customers": "العملاء",
   "realEstateOffices": "المكاتب العقارية",
   "realEstate": "العقارات",
+  "allProperties": "كل العقارات",
   "sale": "بيع",
   "rent": "ايجار",
   "buy": "شراء",
   "settings": "الإعدادات",
-  "generalSettings": "الإعدادات العامة",
+  "generalSettings": "الإعدادات الجغرافية",
+  "realEstateSettings": "الإعدادات العقارية",
+  "propertyFeatures": "المميزات والخدمات",
+  "propertyTypes": "أنواع العقارات",
   "governorates": "المحافظات",
   "cities": "المدن",
-  "neighborhoods": "الأحياء"
+  "neighborhoods": "المناطق"
 }

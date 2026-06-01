@@ -6,6 +6,7 @@ import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { ThemeToggle } from './ThemeToggle'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { AuthAPI } from '../../lib/api-client'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +21,15 @@ export function TopBar() {
   const { t } = useTranslation('common')
   const { toggle, toggleMobile } = useSidebar()
   const navigate = useNavigate()
+
+  const handleLogout = async () => {
+    try {
+      await AuthAPI.logout()
+    } catch { /* ignore */ } finally {
+      localStorage.removeItem('token')
+      navigate('/login')
+    }
+  }
 
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-zinc-200 dark:border-zinc-800 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md px-4 sm:gap-x-6 sm:px-6 lg:px-8">
@@ -94,7 +104,7 @@ export function TopBar() {
                 <User className="me-2 h-4 w-4" />
                 <span>صفحتي الشخصية</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-500/10 font-medium">
+              <DropdownMenuItem className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-500/10 font-medium" onClick={handleLogout}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="me-2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
                 <span>تسجيل الخروج</span>
               </DropdownMenuItem>

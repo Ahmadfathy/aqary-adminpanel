@@ -68,7 +68,13 @@ export const AdminAppointmentsAPI = {
 export const AdminLocationsAPI = {
   getCountries: (params?: any) => api.get(`${PREFIX}/admin/countries`, { params }),
   getCities: (params?: any) => api.get(`${PREFIX}/admin/cities`, { params }),
-  getRegions: (params?: any) => api.get(`${PREFIX}/admin/regions`, { params }),
+  createCity: (data: any) => api.post(`${PREFIX}/admin/cities`, data),
+  updateCity: (id: string | number, data: any) => api.put(`${PREFIX}/admin/cities/${id}`, data),
+  deleteCity: (id: string | number) => api.delete(`${PREFIX}/admin/cities/${id}`),
+  getAreas: (params?: any) => api.get(`${PREFIX}/admin/areas`, { params }),
+  createArea: (data: any) => api.post(`${PREFIX}/admin/areas`, data),
+  updateArea: (id: string | number, data: any) => api.put(`${PREFIX}/admin/areas/${id}`, data),
+  deleteArea: (id: string | number) => api.delete(`${PREFIX}/admin/areas/${id}`),
 };
 
 export const AdminDealsAPI = {

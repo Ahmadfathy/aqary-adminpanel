@@ -5,12 +5,16 @@
   "customers": "Customers",
   "realEstateOffices": "Real Estate Offices",
   "realEstate": "Real Estate",
+  "allProperties": "All Properties",
   "sale": "Sale",
   "rent": "Rent",
   "buy": "Buy",
   "settings": "Settings",
-  "generalSettings": "General Settings",
+  "generalSettings": "Geographic Settings",
+  "realEstateSettings": "Real Estate Settings",
+  "propertyFeatures": "Features & Services",
+  "propertyTypes": "Property Types",
   "governorates": "Governorates",
   "cities": "Cities",
-  "neighborhoods": "Neighborhoods"
+  "neighborhoods": "Areas"
 }

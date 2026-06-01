@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import type { ColumnDef } from '@tanstack/react-table'
 import { AdminPropertiesAPI } from '@/lib/api-client'
 import { Button } from '@/components/ui/button'
@@ -31,15 +31,13 @@ export function PropertiesPage() {
   const [propertyToDelete, setPropertyToDelete] = useState<number | null>(null)
 
   // Determine purpose from URL path
-  const purpose = location.pathname.includes('/sale') ? 'sale' : 
-                  location.pathname.includes('/rent') ? 'rent' : 
-                  location.pathname.includes('/buy') ? 'buy' : '';
+  const purpose = location.pathname.includes('/sale') ? 'sale' :
+                  location.pathname.includes('/rent') ? 'rent' : '';
 
   const getPageTitle = () => {
     if (purpose === 'sale') return 'عقارات للبيع'
     if (purpose === 'rent') return 'عقارات للإيجار'
-    if (purpose === 'buy') return 'طلبات شراء'
-    return 'جميع العقارات'
+    return 'كل العقارات'
   }
 
   const fetchProperties = async () => {
@@ -110,11 +108,16 @@ export function PropertiesPage() {
         header: "العقار",
         cell: ({ row }) => {
           const property = row.original
+          const firstImage = Array.isArray(property.images) ? property.images[0] : null
+          const imageUrl = property.cover_image || property.image || property.thumbnail ||
+            property.main_image || property.photo ||
+            (firstImage && (firstImage.url || firstImage.path || firstImage.src || (typeof firstImage === 'string' ? firstImage : null)))
+          const title = property.title || property.name_ar || property.name || 'عقار بدون عنوان'
           return (
             <div className="flex items-center gap-3">
-              <div className="h-12 w-16 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex-shrink-0 relative">
-                {property.cover_image || property.image ? (
-                  <img src={property.cover_image || property.image} alt={property.title} className="h-full w-full object-cover" />
+              <div className="h-12 w-16 rounded-md overflow-hidden bg-zinc-100 dark:bg-zinc-800 flex-shrink-0">
+                {imageUrl ? (
+                  <img src={imageUrl} alt={title} className="h-full w-full object-cover" />
                 ) : (
                   <div className="h-full w-full flex items-center justify-center text-zinc-400">
                     <Home className="w-5 h-5" />
@@ -122,7 +125,12 @@ export function PropertiesPage() {
                 )}
               </div>
               <div>
-                <p className="font-medium text-zinc-900 dark:text-white line-clamp-1 max-w-[250px]">{property.title || property.name_ar || 'عقار بدون عنوان'}</p>
+                <Link
+                  to={`/real-estate/${property.id}`}
+                  className="font-medium text-zinc-900 dark:text-white hover:text-brand dark:hover:text-brand line-clamp-1 max-w-[250px] transition-colors"
+                >
+                  {title}
+                </Link>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                   رقم المرجع: {property.reference_number || property.id}
                 </p>
