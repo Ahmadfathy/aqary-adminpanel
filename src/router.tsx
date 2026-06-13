@@ -23,6 +23,7 @@ import { ContentBlogPostsPage } from './pages/content/blog/posts'
 import { ContentBlogCommentsPage } from './pages/content/blog/comments'
 import { ContentBlogTagsPage } from './pages/content/blog/tags'
 import { ContentMediaPage } from './pages/content/media'
+import { AdvertisementsPage } from './pages/content/advertisements'
 import { SettingsGeneralPage } from './pages/settings/general'
 import { SettingsSecurityPage } from './pages/settings/security'
 import { SettingsIntegrationsPage } from './pages/settings/integrations'
@@ -31,6 +32,7 @@ import { CitiesPage } from './pages/settings/cities'
 import { NeighborhoodsPage } from './pages/settings/neighborhoods'
 import { PropertyFeaturesPage } from './pages/settings/property-features'
 import { PropertyTypesPage } from './pages/settings/property-types'
+import { OfficeSubscriptionPlansPage } from './pages/settings/office-subscription-plans'
 import { ProfileViewPage } from './pages/settings/profile'
 import { ProfileEditPage } from './pages/settings/profile/edit'
 import { LoginPage } from './pages/auth/login'
@@ -164,6 +166,10 @@ export const router = createBrowserRouter([
         element: <ContentMediaPage />,
       },
       {
+        path: 'content/advertisements',
+        element: <AdvertisementsPage />,
+      },
+      {
         path: 'settings/general',
         element: <SettingsGeneralPage />,
       },
@@ -194,6 +200,10 @@ export const router = createBrowserRouter([
       {
         path: 'settings/neighborhoods',
         element: <NeighborhoodsPage />,
+      },
+      {
+        path: 'settings/office-subscription-plans',
+        element: <OfficeSubscriptionPlansPage />,
       },
       {
         path: 'settings/profile',

@@ -1,6 +1,7 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { AdminLocationsAPI } from '@/lib/api-client'
+import { cleanParams, entityName, errorMessages, isActive, unwrapList } from '@/lib/admin-helpers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -12,30 +13,49 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { Search, Plus, MoreVertical, Edit, Trash2, CheckCircle2, XCircle, Map, Loader2 } from 'lucide-react'
+import { CheckCircle2, Edit, Loader2, Map, MoreVertical, Plus, Search, Trash2, XCircle } from 'lucide-react'
 import { DataTable } from '@/components/ui/data-table'
 
-const empty = { name_ar: '', name_en: '', city_id: '', status: '1' }
+const allValue = 'all'
+const emptyForm = { name_ar: '', name_en: '', city_id: '', status: '1' }
 
 export function NeighborhoodsPage() {
   const [areas, setAreas] = useState<any[]>([])
   const [cities, setCities] = useState<any[]>([])
+  const [governorates, setGovernorates] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [search, setSearch] = useState('')
+  const [filters, setFilters] = useState({ search: '', governorate_id: allValue, city_id: allValue, status: allValue })
   const [sheetOpen, setSheetOpen] = useState(false)
   const [editing, setEditing] = useState<any>(null)
-  const [form, setForm] = useState({ ...empty })
+  const [form, setForm] = useState({ ...emptyForm })
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
-  const [areaToDelete, setAreaToDelete] = useState<any>(null)
+  const [toDelete, setToDelete] = useState<any>(null)
+
+  const fetchLookups = async () => {
+    try {
+      const [govResponse, cityResponse] = await Promise.all([
+        AdminLocationsAPI.getGovernorates({ country_id: 104 }),
+        AdminLocationsAPI.getCities({ country_id: 104 }),
+      ])
+      setGovernorates(unwrapList(govResponse, ['governorates']))
+      setCities(unwrapList(cityResponse, ['cities']))
+    } catch {
+      setGovernorates([])
+      setCities([])
+    }
+  }
 
   const fetchAreas = async () => {
     setIsLoading(true)
     try {
-      const response = await AdminLocationsAPI.getAreas({ search })
-      let data = response?.data?.data?.data || response?.data?.data || response?.data || []
-      if (!Array.isArray(data)) data = data?.items || data?.areas || data?.data || []
-      setAreas(Array.isArray(data) ? data : [])
+      const response = await AdminLocationsAPI.getAreas(cleanParams({
+        search: filters.search,
+        governorate_id: filters.governorate_id === allValue ? '' : filters.governorate_id,
+        city_id: filters.city_id === allValue ? '' : filters.city_id,
+        status: filters.status === allValue ? '' : filters.status,
+      }))
+      setAreas(unwrapList(response, ['areas']))
     } catch {
       setAreas([])
     } finally {
@@ -43,29 +63,22 @@ export function NeighborhoodsPage() {
     }
   }
 
-  const fetchCities = async () => {
-    try {
-      const response = await AdminLocationsAPI.getCities({})
-      let data = response?.data?.data?.data || response?.data?.data || response?.data || []
-      if (!Array.isArray(data)) data = data?.items || data?.cities || data?.data || []
-      setCities(Array.isArray(data) ? data : [])
-    } catch {
-      setCities([])
-    }
-  }
-
+  useEffect(() => { fetchLookups() }, [])
   useEffect(() => {
-    fetchCities()
-  }, [])
+    const timeout = setTimeout(fetchAreas, 400)
+    return () => clearTimeout(timeout)
+  }, [filters])
 
-  useEffect(() => {
-    const t = setTimeout(fetchAreas, 500)
-    return () => clearTimeout(t)
-  }, [search])
+  const filteredCities = useMemo(() => {
+    if (filters.governorate_id === allValue) return cities
+    return cities.filter(city => String(city.governorate_id || city.governorate?.id) === filters.governorate_id)
+  }, [cities, filters.governorate_id])
+
+  const formCities = useMemo(() => cities, [cities])
 
   const openAdd = () => {
     setEditing(null)
-    setForm({ ...empty })
+    setForm({ ...emptyForm })
     setErrors([])
     setSheetOpen(true)
   }
@@ -75,18 +88,21 @@ export function NeighborhoodsPage() {
     setForm({
       name_ar: area.name_ar || area.name || '',
       name_en: area.name_en || '',
-      city_id: area.city_id ? String(area.city_id) : (area.city?.id ? String(area.city.id) : ''),
-      status: area.status === 1 || area.status === true || area.status === 'active' ? '1' : '0',
+      city_id: String(area.city_id || area.city?.id || ''),
+      status: isActive(area.status) ? '1' : '0',
     })
     setErrors([])
     setSheetOpen(true)
   }
 
   const handleSave = async () => {
-    const errs: string[] = []
-    if (!form.name_ar.trim()) errs.push('الاسم بالعربي مطلوب')
-    if (!form.city_id) errs.push('يجب اختيار المدينة')
-    if (errs.length) { setErrors(errs); return }
+    const nextErrors: string[] = []
+    if (!form.name_ar.trim()) nextErrors.push('الاسم بالعربي مطلوب')
+    if (!form.city_id) nextErrors.push('يجب اختيار المدينة')
+    if (nextErrors.length) {
+      setErrors(nextErrors)
+      return
+    }
 
     setSaving(true)
     setErrors([])
@@ -97,71 +113,71 @@ export function NeighborhoodsPage() {
         city_id: Number(form.city_id),
         status: Number(form.status),
       }
-      if (editing) {
-        await AdminLocationsAPI.updateArea(editing.id, payload)
-      } else {
-        await AdminLocationsAPI.createArea(payload)
-      }
+      if (editing) await AdminLocationsAPI.updateArea(editing.id, payload)
+      else await AdminLocationsAPI.createArea(payload)
       setSheetOpen(false)
       fetchAreas()
-    } catch (err: any) {
-      const data = err.response?.data
-      if (data?.errors) {
-        setErrors(Object.values(data.errors).flat() as string[])
-      } else {
-        setErrors([data?.message || 'حدث خطأ، يرجى المحاولة مرة أخرى'])
-      }
+    } catch (err) {
+      setErrors(errorMessages(err))
     } finally {
       setSaving(false)
     }
   }
 
   const handleDelete = async () => {
-    if (!areaToDelete) return
+    if (!toDelete) return
     try {
-      await AdminLocationsAPI.deleteArea(areaToDelete.id)
-      setAreaToDelete(null)
+      await AdminLocationsAPI.deleteArea(toDelete.id)
+      setToDelete(null)
       fetchAreas()
     } catch {
-      setAreaToDelete(null)
+      setToDelete(null)
     }
+  }
+
+  const toggleStatus = async (area: any) => {
+    await AdminLocationsAPI.toggleAreaStatus(area.id)
+    fetchAreas()
   }
 
   const columns = useMemo<ColumnDef<any>[]>(() => [
     {
       accessorKey: 'name_ar',
       header: 'المنطقة',
-      cell: ({ row }) => {
-        const area = row.original
-        return (
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center">
-              <Map className="w-4 h-4 text-teal-600 dark:text-teal-400" />
-            </div>
-            <div>
-              <p className="font-medium text-zinc-900 dark:text-white">{area.name_ar || area.name || '—'}</p>
-              {area.name_en && <p className="text-xs text-zinc-500">{area.name_en}</p>}
-            </div>
+      cell: ({ row }) => (
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center">
+            <Map className="w-4 h-4 text-teal-600 dark:text-teal-400" />
           </div>
-        )
-      },
+          <div>
+            <p className="font-medium text-zinc-900 dark:text-white">{entityName(row.original)}</p>
+            {row.original.name_en && <p className="text-xs text-zinc-500">{row.original.name_en}</p>}
+          </div>
+        </div>
+      ),
     },
     {
       accessorKey: 'city',
       header: 'المدينة',
       cell: ({ row }) => {
-        const area = row.original
-        const fromObject = typeof area.city === 'object' ? (area.city?.name_ar || area.city?.name) : null
-        const fromLookup = area.city_id ? cities.find((c: any) => c.id === area.city_id || c.id === Number(area.city_id)) : null
-        const cityName = fromObject || area.city_name || area.city_name_ar || (fromLookup ? (fromLookup.name_ar || fromLookup.name) : null)
-        return <span className="text-zinc-700 dark:text-zinc-300">{cityName || '—'}</span>
+        const city = row.original.city || cities.find(item => String(item.id) === String(row.original.city_id))
+        return <span className="text-zinc-700 dark:text-zinc-300">{entityName(city)}</span>
+      },
+    },
+    {
+      accessorKey: 'governorate',
+      header: 'المحافظة',
+      cell: ({ row }) => {
+        const city = row.original.city || cities.find(item => String(item.id) === String(row.original.city_id))
+        const governorate = city?.governorate || governorates.find(item => String(item.id) === String(city?.governorate_id))
+        return <span className="text-zinc-700 dark:text-zinc-300">{entityName(governorate)}</span>
       },
     },
     {
       accessorKey: 'status',
       header: 'الحالة',
       cell: ({ row }) => {
-        const active = row.original.status === 1 || row.original.status === true || row.original.status === 'active'
+        const active = isActive(row.original.status)
         return (
           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${active ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10' : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-500/10'}`}>
             {active ? <><CheckCircle2 className="w-3.5 h-3.5" />نشط</> : <><XCircle className="w-3.5 h-3.5" />غير نشط</>}
@@ -174,138 +190,66 @@ export function NeighborhoodsPage() {
       header: '',
       cell: ({ row }) => (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500"><MoreVertical className="w-4 h-4" /></Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40 dark:bg-zinc-900 dark:border-zinc-800">
-            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openEdit(row.original)}>
-              <Edit className="w-4 h-4" />تعديل
+          <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-44 dark:bg-zinc-900 dark:border-zinc-800">
+            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openEdit(row.original)}><Edit className="w-4 h-4" />تعديل</DropdownMenuItem>
+            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => toggleStatus(row.original)}>
+              {isActive(row.original.status) ? <XCircle className="w-4 h-4 text-orange-500" /> : <CheckCircle2 className="w-4 h-4 text-emerald-500" />} تغيير الحالة
             </DropdownMenuItem>
-            <DropdownMenuItem
-              className="gap-2 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-500/10"
-              onClick={() => setAreaToDelete(row.original)}
-            >
-              <Trash2 className="w-4 h-4" />حذف
-            </DropdownMenuItem>
+            <DropdownMenuItem className="gap-2 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-500/10" onClick={() => setToDelete(row.original)}><Trash2 className="w-4 h-4" />حذف</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
     },
-  ], [cities])
+  ], [cities, governorates])
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-400">
-          المناطق
-        </h1>
-        <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-2" onClick={openAdd}>
-          <Plus className="w-4 h-4" />إضافة منطقة
-        </Button>
+        <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-400">المناطق</h1>
+        <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-2" onClick={openAdd}><Plus className="w-4 h-4" />إضافة منطقة</Button>
       </div>
 
       <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50">
-          <div className="relative max-w-md">
-            <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
-            <Input
-              placeholder="البحث في المناطق..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="pr-10 bg-white dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800"
-            />
-          </div>
+        <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 grid gap-3 lg:grid-cols-[1fr_180px_180px_140px]">
+          <div className="relative"><Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" /><Input placeholder="البحث في المناطق..." value={filters.search} onChange={e => setFilters(p => ({ ...p, search: e.target.value }))} className="pr-10 bg-white dark:bg-zinc-950" /></div>
+          <Select value={filters.governorate_id} onValueChange={v => setFilters(p => ({ ...p, governorate_id: v, city_id: allValue }))} dir="rtl">
+            <SelectTrigger><SelectValue placeholder="المحافظة" /></SelectTrigger>
+            <SelectContent><SelectItem value={allValue}>كل المحافظات</SelectItem>{governorates.map(item => <SelectItem key={item.id} value={String(item.id)}>{entityName(item)}</SelectItem>)}</SelectContent>
+          </Select>
+          <Select value={filters.city_id} onValueChange={v => setFilters(p => ({ ...p, city_id: v }))} dir="rtl">
+            <SelectTrigger><SelectValue placeholder="المدينة" /></SelectTrigger>
+            <SelectContent><SelectItem value={allValue}>كل المدن</SelectItem>{filteredCities.map(item => <SelectItem key={item.id} value={String(item.id)}>{entityName(item)}</SelectItem>)}</SelectContent>
+          </Select>
+          <Select value={filters.status} onValueChange={v => setFilters(p => ({ ...p, status: v }))} dir="rtl">
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent><SelectItem value={allValue}>كل الحالات</SelectItem><SelectItem value="1">نشط</SelectItem><SelectItem value="0">غير نشط</SelectItem></SelectContent>
+          </Select>
         </div>
-        <DataTable
-          columns={columns}
-          data={areas}
-          isLoading={isLoading}
-          emptyIcon={<Map className="h-5 w-5 text-zinc-400" />}
-          emptyMessage="لا توجد مناطق مضافة حتى الآن."
-        />
+        <DataTable columns={columns} data={areas} isLoading={isLoading} emptyIcon={<Map className="h-5 w-5 text-zinc-400" />} emptyMessage="لا توجد مناطق مضافة حتى الآن." />
       </Card>
 
-      {/* Add / Edit Sheet */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="left" className="w-full sm:max-w-md dark:bg-zinc-950 dark:border-zinc-800" dir="rtl">
-          <SheetHeader className="mb-6">
-            <SheetTitle className="text-zinc-900 dark:text-white">{editing ? 'تعديل المنطقة' : 'إضافة منطقة جديدة'}</SheetTitle>
-          </SheetHeader>
-
-          {errors.length > 0 && (
-            <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-sm">
-              {errors.map((e, i) => <p key={i}>{e}</p>)}
-            </div>
-          )}
-
+          <SheetHeader className="mb-6"><SheetTitle>{editing ? 'تعديل المنطقة' : 'إضافة منطقة جديدة'}</SheetTitle></SheetHeader>
+          {errors.length > 0 && <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-sm">{errors.map((e, i) => <p key={i}>{e}</p>)}</div>}
           <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>الاسم بالعربي <span className="text-red-500">*</span></Label>
-              <Input
-                value={form.name_ar}
-                onChange={e => setForm(p => ({ ...p, name_ar: e.target.value }))}
-                placeholder="مثال: الكرادة"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>الاسم بالإنجليزي</Label>
-              <Input
-                value={form.name_en}
-                onChange={e => setForm(p => ({ ...p, name_en: e.target.value }))}
-                placeholder="e.g. Karrada"
-                dir="ltr"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>المدينة <span className="text-red-500">*</span></Label>
-              <Select value={form.city_id} onValueChange={v => setForm(p => ({ ...p, city_id: v }))} dir="rtl">
-                <SelectTrigger>
-                  <SelectValue placeholder="اختر المدينة" />
-                </SelectTrigger>
-                <SelectContent>
-                  {cities.map(city => (
-                    <SelectItem key={city.id} value={String(city.id)}>
-                      {city.name_ar || city.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>الحالة</Label>
-              <Select value={form.status} onValueChange={v => setForm(p => ({ ...p, status: v }))} dir="rtl">
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">نشط</SelectItem>
-                  <SelectItem value="0">غير نشط</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <div className="space-y-2"><Label>الاسم بالعربي <span className="text-red-500">*</span></Label><Input value={form.name_ar} onChange={e => setForm(p => ({ ...p, name_ar: e.target.value }))} placeholder="مثال: الكرادة" /></div>
+            <div className="space-y-2"><Label>الاسم بالإنجليزي</Label><Input value={form.name_en} onChange={e => setForm(p => ({ ...p, name_en: e.target.value }))} placeholder="e.g. Karrada" dir="ltr" /></div>
+            <div className="space-y-2"><Label>المدينة <span className="text-red-500">*</span></Label><Select value={form.city_id} onValueChange={v => setForm(p => ({ ...p, city_id: v }))} dir="rtl"><SelectTrigger><SelectValue placeholder="اختر المدينة" /></SelectTrigger><SelectContent>{formCities.map(item => <SelectItem key={item.id} value={String(item.id)}>{entityName(item)}</SelectItem>)}</SelectContent></Select></div>
+            <div className="space-y-2"><Label>الحالة</Label><Select value={form.status} onValueChange={v => setForm(p => ({ ...p, status: v }))} dir="rtl"><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="1">نشط</SelectItem><SelectItem value="0">غير نشط</SelectItem></SelectContent></Select></div>
           </div>
-
           <div className="flex gap-3 mt-8">
-            <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white gap-2" onClick={handleSave} disabled={saving}>
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              {editing ? 'حفظ التعديلات' : 'إضافة المنطقة'}
-            </Button>
+            <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white gap-2" onClick={handleSave} disabled={saving}>{saving && <Loader2 className="w-4 h-4 animate-spin" />}{editing ? 'حفظ التعديلات' : 'إضافة المنطقة'}</Button>
             <Button variant="outline" onClick={() => setSheetOpen(false)} disabled={saving}>إلغاء</Button>
           </div>
         </SheetContent>
       </Sheet>
 
-      {/* Delete confirm */}
-      <AlertDialog open={!!areaToDelete} onOpenChange={open => !open && setAreaToDelete(null)}>
+      <AlertDialog open={!!toDelete} onOpenChange={open => !open && setToDelete(null)}>
         <AlertDialogContent className="dark:bg-[#0f0f11] dark:border-zinc-800">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-right text-zinc-900 dark:text-zinc-100">تأكيد الحذف</AlertDialogTitle>
-            <AlertDialogDescription className="text-right text-zinc-500 dark:text-zinc-400">
-              هل أنت متأكد من حذف منطقة "{areaToDelete?.name_ar || areaToDelete?.name}"؟ لا يمكن التراجع عن هذا الإجراء.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2 mt-4">
-            <AlertDialogCancel className="mt-0 border-zinc-200 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800">إلغاء</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white" onClick={handleDelete}>حذف نهائي</AlertDialogAction>
-          </AlertDialogFooter>
+          <AlertDialogHeader><AlertDialogTitle className="text-right">تأكيد الحذف</AlertDialogTitle><AlertDialogDescription className="text-right">هل تريد حذف منطقة "{entityName(toDelete)}"؟ لا يمكن التراجع عن هذا الإجراء.</AlertDialogDescription></AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2 mt-4"><AlertDialogCancel className="mt-0">إلغاء</AlertDialogCancel><AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white" onClick={handleDelete}>حذف نهائي</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>

@@ -30,12 +30,11 @@ export function UsersPage() {
   const fetchUsers = async () => {
     setIsLoading(true)
     try {
-      const response = await AdminUsersAPI.getUsers({ user_type: 'admin' })
-      let data = response.data?.data?.data || response.data?.data || response.data;
-      if (!Array.isArray(data)) {
-        data = data?.items || data?.users || data?.data || [];
-      }
-      setUsers(Array.isArray(data) ? data : [])
+      const [adminResponse, supervisorResponse] = await Promise.all([
+        AdminUsersAPI.getUsers({ user_type: 'admin' }),
+        AdminUsersAPI.getUsers({ user_type: 'supervisor' }),
+      ])
+      setUsers([...extractUsers(adminResponse), ...extractUsers(supervisorResponse)])
     } catch (error) {
       console.error("Failed to fetch users", error)
     } finally {
@@ -119,9 +118,24 @@ export function UsersPage() {
                 ? 'bg-purple-100 text-purple-800 dark:bg-purple-500/10 dark:text-purple-400'
                 : user_type === 'client'
                 ? 'bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400'
+                : user_type === 'supervisor'
+                ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400'
                 : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300'
             }`}>
-              {user_type === 'office' ? 'مكتب عقاري' : user_type === 'client' ? 'عميل' : user_type || 'مستخدم'}
+              {user_type === 'admin' ? 'مدير' : user_type === 'supervisor' ? 'مشرف' : user_type === 'office' ? 'مكتب عقاري' : user_type === 'client' ? 'عميل' : user_type || 'مستخدم'}
+            </span>
+          )
+        },
+      },
+      {
+        accessorKey: "allowed_cities",
+        header: "المدن المسموحة",
+        enableSorting: false,
+        cell: ({ row }) => {
+          const label = allowedCitiesLabel(row.original)
+          return (
+            <span className="text-sm text-zinc-600 dark:text-zinc-400">
+              {label}
             </span>
           )
         },
@@ -251,4 +265,28 @@ export function UsersPage() {
       </AlertDialog>
     </div>
   )
+}
+
+function extractUsers(response: any) {
+  let data = response.data?.data?.data || response.data?.data || response.data
+  if (!Array.isArray(data)) {
+    data = data?.items || data?.users || data?.data || []
+  }
+  return Array.isArray(data) ? data : []
+}
+
+function allowedCitiesLabel(user: any) {
+  const cities = user?.allowed_cities || user?.allowedCities || user?.cities || user?.admin_cities || user?.adminCities || []
+  const list = Array.isArray(cities) ? cities : Object.values(cities || {})
+  const names = list
+    .map((city: any) => {
+      if (city === null || city === undefined) return ''
+      if (typeof city === 'string' || typeof city === 'number') return String(city)
+      return city.name_ar || city.name || city.name_en || city.name_ku || city.title_ar || city.title || city.id || ''
+    })
+    .filter(Boolean)
+
+  if (names.length) return names.join('، ')
+  if (user?.user_type === 'admin') return 'كل المدن'
+  return '—'
 }

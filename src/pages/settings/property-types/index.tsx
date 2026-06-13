@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
-import { AdminPropertyTypesAPI } from '@/lib/api-client'
+import { AdminPropertyCategoriesAPI, AdminPropertyTypesAPI } from '@/lib/api-client'
+import { entityName, unwrapList } from '@/lib/admin-helpers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -15,10 +16,11 @@ import {
 import { Search, Plus, MoreVertical, Edit, Trash2, CheckCircle2, XCircle, Home, Loader2 } from 'lucide-react'
 import { DataTable } from '@/components/ui/data-table'
 
-const empty = { name_ar: '', name_en: '', status: '1' }
+const empty = { name_ar: '', name_en: '', status: '1', property_category_ids: [] as string[] }
 
 export function PropertyTypesPage() {
   const [types, setTypes] = useState<any[]>([])
+  const [categories, setCategories] = useState<any[]>([])
   const [filtered, setFiltered] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -42,7 +44,19 @@ export function PropertyTypesPage() {
     }
   }
 
-  useEffect(() => { fetchTypes() }, [])
+  const fetchCategories = async () => {
+    try {
+      const response = await AdminPropertyCategoriesAPI.getCategories()
+      setCategories(unwrapList(response, ['property_categories', 'categories']))
+    } catch {
+      setCategories([])
+    }
+  }
+
+  useEffect(() => {
+    fetchTypes()
+    fetchCategories()
+  }, [])
 
   useEffect(() => {
     const q = search.toLowerCase()
@@ -64,6 +78,7 @@ export function PropertyTypesPage() {
     setForm({
       name_ar: item.name_ar || item.name || '',
       name_en: item.name_en || '',
+      property_category_ids: (item.property_category_ids || item.property_categories?.map((category: any) => category.id) || []).map(String),
       status: item.status === 1 || item.status === true || item.status === 'active' ? '1' : '0',
     })
     setErrors([])
@@ -75,7 +90,12 @@ export function PropertyTypesPage() {
     setSaving(true)
     setErrors([])
     try {
-      const payload = { name_ar: form.name_ar, name_en: form.name_en, status: Number(form.status) }
+      const payload = {
+        name_ar: form.name_ar,
+        name_en: form.name_en,
+        property_category_ids: form.property_category_ids.map(Number),
+        status: Number(form.status),
+      }
       if (editing) {
         await AdminPropertyTypesAPI.updateType(editing.id, payload)
       } else {
@@ -108,6 +128,15 @@ export function PropertyTypesPage() {
     } catch { /* ignore */ }
   }
 
+  const toggleCategory = (id: string) => {
+    setForm(prev => ({
+      ...prev,
+      property_category_ids: prev.property_category_ids.includes(id)
+        ? prev.property_category_ids.filter(item => item !== id)
+        : [...prev.property_category_ids, id],
+    }))
+  }
+
   const columns = useMemo<ColumnDef<any>[]>(() => [
     {
       accessorKey: 'name_ar',
@@ -122,6 +151,13 @@ export function PropertyTypesPage() {
             <div>
               <p className="font-medium text-zinc-900 dark:text-white">{t.name_ar || t.name || '—'}</p>
               {t.name_en && <p className="text-xs text-zinc-500">{t.name_en}</p>}
+              {(t.property_categories || []).length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {t.property_categories.map((category: any) => (
+                    <span key={category.id} className="rounded border border-zinc-200 dark:border-zinc-700 px-1.5 py-0.5 text-[11px] text-zinc-500">{entityName(category)}</span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )
@@ -220,6 +256,20 @@ export function PropertyTypesPage() {
             <div className="space-y-2">
               <Label>الاسم بالإنجليزي</Label>
               <Input value={form.name_en} onChange={e => setForm(p => ({ ...p, name_en: e.target.value }))} placeholder="e.g. Apartment" dir="ltr" />
+            </div>
+            <div className="space-y-2">
+              <Label>التصنيفات</Label>
+              <div className="max-h-48 overflow-y-auto rounded-md border border-zinc-200 dark:border-zinc-800 p-2 space-y-1">
+                {categories.length ? categories.map(category => {
+                  const id = String(category.id)
+                  return (
+                    <label key={id} className="flex cursor-pointer items-center justify-between gap-3 rounded px-2 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-900">
+                      <span className="text-zinc-700 dark:text-zinc-200">{entityName(category)}</span>
+                      <input type="checkbox" className="h-4 w-4 accent-teal-600" checked={form.property_category_ids.includes(id)} onChange={() => toggleCategory(id)} />
+                    </label>
+                  )
+                }) : <p className="px-2 py-3 text-sm text-zinc-500">لا توجد تصنيفات متاحة.</p>}
+              </div>
             </div>
             <div className="space-y-2">
               <Label>الحالة</Label>

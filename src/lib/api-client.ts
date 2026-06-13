@@ -50,6 +50,10 @@ export const AdminPropertyFeaturesAPI = {
   deleteFeature: (id: string | number) => api.delete(`${PREFIX}/admin/property-features/${id}`),
 };
 
+export const AdminPropertyCategoriesAPI = {
+  getCategories: (params?: any) => api.get(`${PREFIX}/admin/property-categories`, { params }),
+};
+
 export const AdminPropertiesAPI = {
   getProperties: (params?: any) => api.get(`${PREFIX}/admin/properties`, { params }),
   getProperty: (id: string | number) => api.get(`${PREFIX}/admin/properties/${id}`),
@@ -67,14 +71,48 @@ export const AdminAppointmentsAPI = {
 
 export const AdminLocationsAPI = {
   getCountries: (params?: any) => api.get(`${PREFIX}/admin/countries`, { params }),
+  getGovernorates: (params?: any) => api.get(`${PREFIX}/admin/governorates`, { params }),
+  createGovernorate: (data: any) => api.post(`${PREFIX}/admin/governorates`, data),
+  getGovernorate: (id: string | number) => api.get(`${PREFIX}/admin/governorates/${id}`),
+  updateGovernorate: (id: string | number, data: any) => api.put(`${PREFIX}/admin/governorates/${id}`, data),
+  deleteGovernorate: (id: string | number) => api.delete(`${PREFIX}/admin/governorates/${id}`),
+  toggleGovernorateStatus: (id: string | number) => api.patch(`${PREFIX}/admin/governorates/${id}/toggle-status`),
   getCities: (params?: any) => api.get(`${PREFIX}/admin/cities`, { params }),
   createCity: (data: any) => api.post(`${PREFIX}/admin/cities`, data),
+  getCity: (id: string | number) => api.get(`${PREFIX}/admin/cities/${id}`),
   updateCity: (id: string | number, data: any) => api.put(`${PREFIX}/admin/cities/${id}`, data),
   deleteCity: (id: string | number) => api.delete(`${PREFIX}/admin/cities/${id}`),
+  toggleCityStatus: (id: string | number) => api.patch(`${PREFIX}/admin/cities/${id}/toggle-status`),
   getAreas: (params?: any) => api.get(`${PREFIX}/admin/areas`, { params }),
   createArea: (data: any) => api.post(`${PREFIX}/admin/areas`, data),
+  getArea: (id: string | number) => api.get(`${PREFIX}/admin/areas/${id}`),
   updateArea: (id: string | number, data: any) => api.put(`${PREFIX}/admin/areas/${id}`, data),
   deleteArea: (id: string | number) => api.delete(`${PREFIX}/admin/areas/${id}`),
+  toggleAreaStatus: (id: string | number) => api.patch(`${PREFIX}/admin/areas/${id}/toggle-status`),
+};
+
+export const AdminAdvertisementsAPI = {
+  getAdvertisements: (params?: any) => api.get(`${PREFIX}/admin/advertisements`, { params }),
+  createAdvertisement: (data: FormData) => api.post(`${PREFIX}/admin/advertisements`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+  getAdvertisement: (id: string | number) => api.get(`${PREFIX}/admin/advertisements/${id}`),
+  updateAdvertisement: (id: string | number, data: FormData) => api.post(`${PREFIX}/admin/advertisements/update/${id}`, data, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }),
+  deleteAdvertisement: (id: string | number) => api.delete(`${PREFIX}/admin/advertisements/delete/${id}`),
+  toggleStatus: (id: string | number) => api.post(`${PREFIX}/admin/advertisements/toggle-status/${id}`),
+  getHomeSlider: () => api.get(`${PREFIX}/public/advertisements/home-slider`),
+};
+
+export const AdminSettingsAPI = {
+  getSettings: () => api.get(`${PREFIX}/admin/settings`),
+  updateSettings: (data: any) => api.put(`${PREFIX}/admin/settings`, data),
+};
+
+export const AdminOfficeSubscriptionPlansAPI = {
+  getPlans: (params?: any) => api.get(`${PREFIX}/admin/office-subscription-plans`, { params }),
+  updatePlan: (id: string | number, data: any) => api.put(`${PREFIX}/admin/office-subscription-plans/${id}`, data),
 };
 
 export const AdminDealsAPI = {

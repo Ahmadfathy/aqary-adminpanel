@@ -3,6 +3,7 @@ import {
   Users,
   Home,
   Settings,
+  Megaphone,
   type LucideIcon
 } from 'lucide-react'
 
@@ -66,6 +67,18 @@ export const menu: MenuItem[] = [
     ],
   },
   {
+    id: 'content',
+    labelKey: 'menu:content',
+    icon: Megaphone,
+    children: [
+      {
+        id: 'advertisements',
+        labelKey: 'menu:advertisements',
+        path: '/content/advertisements',
+      },
+    ],
+  },
+  {
     id: 'settings',
     labelKey: 'menu:settings',
     icon: Settings,
@@ -74,6 +87,11 @@ export const menu: MenuItem[] = [
         id: 'general-settings',
         labelKey: 'menu:generalSettings',
         children: [
+          {
+            id: 'governorates',
+            labelKey: 'menu:governorates',
+            path: '/settings/governorates',
+          },
           {
             id: 'cities',
             labelKey: 'menu:cities',
@@ -99,6 +117,22 @@ export const menu: MenuItem[] = [
             id: 'property-types',
             labelKey: 'menu:propertyTypes',
             path: '/settings/property-types',
+          },
+        ],
+      },
+      {
+        id: 'app-settings',
+        labelKey: 'menu:appSettings',
+        children: [
+          {
+            id: 'general',
+            labelKey: 'menu:adminSettings',
+            path: '/settings/general',
+          },
+          {
+            id: 'office-subscription-plans',
+            labelKey: 'menu:officeSubscriptionPlans',
+            path: '/settings/office-subscription-plans',
           },
         ],
       },
