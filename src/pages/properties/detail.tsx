@@ -204,29 +204,6 @@ export function PropertyDetailPage() {
   return (
     <div className="space-y-5" dir="rtl">
 
-      {/* ── Status banner ────────────────────────────────────────────────── */}
-      <div className={`flex flex-col sm:flex-row sm:items-center gap-4 rounded-xl border px-5 py-4 ${s.banner}`}>
-        <div className={`p-2.5 rounded-full self-start ${s.badge}`}>
-          <SIcon className={`w-5 h-5 ${s.text}`} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className={`font-bold text-lg ${s.text}`}>{s.label}</p>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">{s.sub}</p>
-          {property.rejection_reason && (
-            <p className="text-sm text-red-600 dark:text-red-400 mt-1 flex items-center gap-1.5">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-              سبب الرفض: {property.rejection_reason}
-            </p>
-          )}
-          {property.approved_at && s.approved && (
-            <p className="text-xs text-zinc-400 mt-1">
-              تمت الموافقة بتاريخ {fmt(property.approved_at)}
-              {property.approved_by && ` · بواسطة ${property.approved_by.name}`}
-            </p>
-          )}
-        </div>
-      </div>
-
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
@@ -447,6 +424,29 @@ export function PropertyDetailPage() {
               <Row icon={Calendar} label="تاريخ الاعتماد" value={property.approved_at ? fmt(property.approved_at) : null} />
             </Card>
           )}
+
+          {/* Status banner */}
+          <div className={`flex flex-col sm:flex-row sm:items-center gap-3 rounded-xl border px-4 py-3 ${s.banner}`}>
+            <div className={`p-2 rounded-full self-start ${s.badge}`}>
+              <SIcon className={`w-4 h-4 ${s.text}`} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className={`font-bold text-sm ${s.text}`}>{s.label}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">{s.sub}</p>
+              {property.rejection_reason && (
+                <p className="text-xs text-red-600 dark:text-red-400 mt-0.5 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3 shrink-0" />
+                  سبب الرفض: {property.rejection_reason}
+                </p>
+              )}
+              {property.approved_at && s.approved && (
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  تمت الموافقة بتاريخ {fmt(property.approved_at)}
+                  {property.approved_by && ` · بواسطة ${property.approved_by.name}`}
+                </p>
+              )}
+            </div>
+          </div>
 
           {/* Actions */}
           <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] p-5 space-y-2">
