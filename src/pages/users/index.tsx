@@ -22,6 +22,7 @@ import { DataTable } from '@/components/ui/data-table'
 
 export function UsersPage() {
   const { t } = useTranslation('menu')
+  const { t: tc } = useTranslation('common')
   const navigate = useNavigate()
   const [users, setUsers] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -69,7 +70,7 @@ export function UsersPage() {
     () => [
       {
         accessorKey: "name",
-        header: "المستخدم",
+        header: tc('users.col'),
         enableSorting: true,
         cell: ({ row }) => {
           const user = row.original
@@ -83,7 +84,7 @@ export function UsersPage() {
               </Avatar>
               <div>
                 <p className="font-medium text-zinc-900 dark:text-white text-sm">
-                  {user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'بدون إسم'}
+                  {user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || tc('common.noName')}
                 </p>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5" dir="ltr">
                   {user.email || ''}
@@ -95,7 +96,7 @@ export function UsersPage() {
       },
       {
         accessorKey: "email",
-        header: "معلومات الاتصال",
+        header: tc('common.contactInfo'),
         enableHiding: true,
         cell: ({ row }) => {
           const user = row.original
@@ -108,7 +109,7 @@ export function UsersPage() {
       },
       {
         accessorKey: "user_type",
-        header: "الدور",
+        header: tc('common.role'),
         enableSorting: true,
         cell: ({ row }) => {
           const user_type = row.original.user_type
@@ -122,27 +123,28 @@ export function UsersPage() {
                 ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-400'
                 : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300'
             }`}>
-              {user_type === 'admin' ? 'مدير' : user_type === 'supervisor' ? 'مشرف' : user_type === 'office' ? 'مكتب عقاري' : user_type === 'client' ? 'عميل' : user_type || 'مستخدم'}
+              {user_type === 'admin' ? tc('users.types.admin') : user_type === 'supervisor' ? tc('users.types.supervisor') : user_type === 'office' ? tc('users.types.office') : user_type === 'client' ? tc('users.types.client') : user_type || tc('users.types.user')}
             </span>
           )
         },
       },
       {
         accessorKey: "allowed_cities",
-        header: "المدن المسموحة",
+        header: tc('common.allowedCities'),
         enableSorting: false,
         cell: ({ row }) => {
           const label = allowedCitiesLabel(row.original)
+          const isAdmin = row.original?.user_type === 'admin'
           return (
             <span className="text-sm text-zinc-600 dark:text-zinc-400">
-              {label}
+              {isAdmin && !label ? tc('common.allCities') : label}
             </span>
           )
         },
       },
       {
         accessorKey: "status",
-        header: "الحالة",
+        header: tc('common.status'),
         enableSorting: true,
         cell: ({ row }) => {
           const status = row.original.status
@@ -154,9 +156,9 @@ export function UsersPage() {
                 : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-500/10'
             }`}>
               {isActive ? (
-                <><CheckCircle2 className="w-3.5 h-3.5" /> نشط</>
+                <><CheckCircle2 className="w-3.5 h-3.5" /> {tc('status.active')}</>
               ) : (
-                <><XCircle className="w-3.5 h-3.5" /> موقوف</>
+                <><XCircle className="w-3.5 h-3.5" /> {tc('status.suspended')}</>
               )}
             </span>
           )
@@ -164,7 +166,7 @@ export function UsersPage() {
       },
       {
         accessorKey: "created_at",
-        header: "تاريخ الانضمام",
+        header: tc('common.joinDate'),
         enableSorting: true,
         cell: ({ row }) => {
           const date = row.original.created_at
@@ -191,20 +193,20 @@ export function UsersPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 dark:bg-zinc-900 dark:border-zinc-800">
                 <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => navigate(`/users/${user.id}/edit`)}>
-                  <Edit className="w-4 h-4" /> تعديل البيانات
+                  <Edit className="w-4 h-4" /> {tc('users.editData')}
                 </DropdownMenuItem>
                 <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => toggleStatus(user.id)}>
                   {isActive ? (
-                    <><XCircle className="w-4 h-4 text-orange-500" /> <span className="text-orange-500">إيقاف الحساب</span></>
+                    <><XCircle className="w-4 h-4 text-orange-500" /> <span className="text-orange-500">{tc('common.deactivateAccount')}</span></>
                   ) : (
-                    <><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-emerald-500">تفعيل الحساب</span></>
+                    <><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-emerald-500">{tc('common.activateAccount')}</span></>
                   )}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="gap-2 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-500/10"
                   onClick={() => setUserToDelete(user.id)}
                 >
-                  <Trash2 className="w-4 h-4" /> حذف المستخدم
+                  <Trash2 className="w-4 h-4" /> {tc('users.deleteUser')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -212,14 +214,14 @@ export function UsersPage() {
         },
       },
     ],
-    [navigate, toggleStatus]
+    [navigate, toggleStatus, tc]
   )
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-400">
-          {t('admins') || 'المشرفين'}
+          {t('admins') || tc('users.title')}
         </h1>
         <div className="flex items-center gap-3">
           <Button
@@ -227,7 +229,7 @@ export function UsersPage() {
             className="bg-teal-600 hover:bg-teal-700 text-white gap-2"
           >
             <UserPlus className="w-4 h-4" />
-            إضافة مشرف
+            {tc('users.addAdmin')}
           </Button>
         </div>
       </div>
@@ -238,27 +240,27 @@ export function UsersPage() {
           data={users}
           isLoading={isLoading}
           searchKey="name"
-          searchPlaceholder="البحث بالاسم..."
+          searchPlaceholder={tc('common.searchByName')}
           emptyIcon={<Search className="h-5 w-5 text-zinc-400" />}
-          emptyMessage="لا يوجد مستخدمين يطابقون بحثك"
+          emptyMessage={tc('users.noUsersFound')}
         />
       </Card>
 
       <AlertDialog open={userToDelete !== null} onOpenChange={(open) => !open && setUserToDelete(null)}>
         <AlertDialogContent className="dark:bg-[#0f0f11] dark:border-zinc-800">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-right text-zinc-900 dark:text-zinc-100">تأكيد الحذف</AlertDialogTitle>
+            <AlertDialogTitle className="text-right text-zinc-900 dark:text-zinc-100">{tc('common.deleteConfirmTitle')}</AlertDialogTitle>
             <AlertDialogDescription className="text-right text-zinc-500 dark:text-zinc-400">
-              هل أنت متأكد من حذف هذا المستخدم نهائياً؟ لا يمكن التراجع عن هذا الإجراء وسيتم مسح كافة بياناته.
+              {tc('users.deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2 mt-4">
-            <AlertDialogCancel className="mt-0 border-zinc-200 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800">إلغاء</AlertDialogCancel>
+            <AlertDialogCancel className="mt-0 border-zinc-200 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800">{tc('btn.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-600 hover:bg-red-700 text-white"
               onClick={() => userToDelete && handleDelete(userToDelete)}
             >
-              حذف نهائي
+              {tc('btn.deletePermanent')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -287,6 +289,6 @@ function allowedCitiesLabel(user: any) {
     .filter(Boolean)
 
   if (names.length) return names.join('، ')
-  if (user?.user_type === 'admin') return 'كل المدن'
+  if (user?.user_type === 'admin') return null
   return '—'
 }

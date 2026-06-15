@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { ColumnDef } from '@tanstack/react-table'
 import { AdminLocationsAPI } from '@/lib/api-client'
 import { cleanParams, entityName, errorMessages, isActive, unwrapList } from '@/lib/admin-helpers'
@@ -21,6 +22,7 @@ const defaultCountryId = '104'
 const emptyForm = { name_ar: '', name_en: '', governorate_id: '', country_id: defaultCountryId, status: '1' }
 
 export function CitiesPage() {
+  const { t: tc } = useTranslation('common')
   const [cities, setCities] = useState<any[]>([])
   const [governorates, setGovernorates] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -86,8 +88,8 @@ export function CitiesPage() {
 
   const handleSave = async () => {
     const nextErrors: string[] = []
-    if (!form.name_ar.trim()) nextErrors.push('الاسم بالعربي مطلوب')
-    if (!form.governorate_id) nextErrors.push('يجب اختيار المحافظة')
+    if (!form.name_ar.trim()) nextErrors.push(tc('settings.cities.nameArRequired'))
+    if (!form.governorate_id) nextErrors.push(tc('settings.cities.governorateRequired'))
     if (nextErrors.length) {
       setErrors(nextErrors)
       return
@@ -133,7 +135,7 @@ export function CitiesPage() {
   const columns = useMemo<ColumnDef<any>[]>(() => [
     {
       accessorKey: 'name_ar',
-      header: 'المدينة',
+      header: tc('settings.cities.col'),
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
           <div className="h-8 w-8 rounded bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
@@ -148,7 +150,7 @@ export function CitiesPage() {
     },
     {
       accessorKey: 'governorate',
-      header: 'المحافظة',
+      header: tc('settings.cities.colGovernorate'),
       cell: ({ row }) => {
         const governorate = row.original.governorate
         const lookup = governorates.find(item => String(item.id) === String(row.original.governorate_id))
@@ -162,7 +164,7 @@ export function CitiesPage() {
         const active = isActive(row.original.status)
         return (
           <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${active ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10' : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-500/10'}`}>
-            {active ? <><CheckCircle2 className="w-3.5 h-3.5" />نشط</> : <><XCircle className="w-3.5 h-3.5" />غير نشط</>}
+            {active ? <><CheckCircle2 className="w-3.5 h-3.5" />{tc('status.active')}</> : <><XCircle className="w-3.5 h-3.5" />{tc('status.inactive')}</>}
           </span>
         )
       },
@@ -174,11 +176,11 @@ export function CitiesPage() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500"><MoreVertical className="w-4 h-4" /></Button></DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44 dark:bg-zinc-900 dark:border-zinc-800">
-            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openEdit(row.original)}><Edit className="w-4 h-4" />تعديل</DropdownMenuItem>
+            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => openEdit(row.original)}><Edit className="w-4 h-4" />{tc('btn.edit')}</DropdownMenuItem>
             <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => toggleStatus(row.original)}>
-              {isActive(row.original.status) ? <XCircle className="w-4 h-4 text-orange-500" /> : <CheckCircle2 className="w-4 h-4 text-emerald-500" />} تغيير الحالة
+              {isActive(row.original.status) ? <XCircle className="w-4 h-4 text-orange-500" /> : <CheckCircle2 className="w-4 h-4 text-emerald-500" />} {tc('common.toggleStatus')}
             </DropdownMenuItem>
-            <DropdownMenuItem className="gap-2 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-500/10" onClick={() => setToDelete(row.original)}><Trash2 className="w-4 h-4" />حذف</DropdownMenuItem>
+            <DropdownMenuItem className="gap-2 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-500/10" onClick={() => setToDelete(row.original)}><Trash2 className="w-4 h-4" />{tc('btn.delete')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),
@@ -188,47 +190,47 @@ export function CitiesPage() {
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-400">المدن</h1>
-        <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-2" onClick={openAdd}><Plus className="w-4 h-4" />إضافة مدينة</Button>
+        <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-400">{tc('settings.cities.title')}</h1>
+        <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-2" onClick={openAdd}><Plus className="w-4 h-4" />{tc('settings.cities.add')}</Button>
       </div>
 
       <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] shadow-sm overflow-hidden">
         <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 grid gap-3 lg:grid-cols-[1fr_130px_190px_150px]">
-          <div className="relative"><Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" /><Input placeholder="البحث في المدن..." value={filters.search} onChange={e => setFilters(p => ({ ...p, search: e.target.value }))} className="pr-10 bg-white dark:bg-zinc-950" /></div>
+          <div className="relative"><Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" /><Input placeholder={tc('settings.cities.search')} value={filters.search} onChange={e => setFilters(p => ({ ...p, search: e.target.value }))} className="pr-10 bg-white dark:bg-zinc-950" /></div>
           <Input value={filters.country_id} onChange={e => setFilters(p => ({ ...p, country_id: e.target.value }))} placeholder="country_id" dir="ltr" />
           <Select value={filters.governorate_id} onValueChange={v => setFilters(p => ({ ...p, governorate_id: v }))} dir="rtl">
             <SelectTrigger><SelectValue placeholder="المحافظة" /></SelectTrigger>
-            <SelectContent><SelectItem value={allValue}>كل المحافظات</SelectItem>{governorates.map(item => <SelectItem key={item.id} value={String(item.id)}>{entityName(item)}</SelectItem>)}</SelectContent>
+            <SelectContent><SelectItem value={allValue}>{tc('settings.cities.allGovernorates')}</SelectItem>{governorates.map(item => <SelectItem key={item.id} value={String(item.id)}>{entityName(item)}</SelectItem>)}</SelectContent>
           </Select>
           <Select value={filters.status} onValueChange={v => setFilters(p => ({ ...p, status: v }))} dir="rtl">
             <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent><SelectItem value={allValue}>كل الحالات</SelectItem><SelectItem value="1">نشط</SelectItem><SelectItem value="0">غير نشط</SelectItem></SelectContent>
+            <SelectContent><SelectItem value={allValue}>{tc('status.allStatuses')}</SelectItem><SelectItem value="1">{tc('status.active')}</SelectItem><SelectItem value="0">{tc('status.inactive')}</SelectItem></SelectContent>
           </Select>
         </div>
-        <DataTable columns={columns} data={cities} isLoading={isLoading} emptyIcon={<MapPin className="h-5 w-5 text-zinc-400" />} emptyMessage="لا توجد مدن مضافة حتى الآن." />
+        <DataTable columns={columns} data={cities} isLoading={isLoading} emptyIcon={<MapPin className="h-5 w-5 text-zinc-400" />} emptyMessage={tc('settings.cities.noFound')} />
       </Card>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="left" className="w-full sm:max-w-md dark:bg-zinc-950 dark:border-zinc-800" dir="rtl">
-          <SheetHeader className="mb-6"><SheetTitle>{editing ? 'تعديل المدينة' : 'إضافة مدينة جديدة'}</SheetTitle></SheetHeader>
+          <SheetHeader className="mb-6"><SheetTitle>{editing ? tc('settings.cities.editTitle') : tc('settings.cities.addTitle')}</SheetTitle></SheetHeader>
           {errors.length > 0 && <div className="mb-4 p-3 rounded-lg bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-sm">{errors.map((e, i) => <p key={i}>{e}</p>)}</div>}
           <div className="space-y-4">
-            <div className="space-y-2"><Label>الاسم بالعربي <span className="text-red-500">*</span></Label><Input value={form.name_ar} onChange={e => setForm(p => ({ ...p, name_ar: e.target.value }))} placeholder="مثال: الكرخ" /></div>
-            <div className="space-y-2"><Label>الاسم بالإنجليزي</Label><Input value={form.name_en} onChange={e => setForm(p => ({ ...p, name_en: e.target.value }))} placeholder="e.g. Karkh" dir="ltr" /></div>
-            <div className="space-y-2"><Label>المحافظة <span className="text-red-500">*</span></Label><Select value={form.governorate_id} onValueChange={v => setForm(p => ({ ...p, governorate_id: v }))} dir="rtl"><SelectTrigger><SelectValue placeholder="اختر المحافظة" /></SelectTrigger><SelectContent>{governorates.map(item => <SelectItem key={item.id} value={String(item.id)}>{entityName(item)}</SelectItem>)}</SelectContent></Select></div>
-            <div className="space-y-2"><Label>الحالة</Label><Select value={form.status} onValueChange={v => setForm(p => ({ ...p, status: v }))} dir="rtl"><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="1">نشط</SelectItem><SelectItem value="0">غير نشط</SelectItem></SelectContent></Select></div>
+            <div className="space-y-2"><Label>{tc('settings.cities.nameAr')} <span className="text-red-500">*</span></Label><Input value={form.name_ar} onChange={e => setForm(p => ({ ...p, name_ar: e.target.value }))} placeholder={tc('settings.cities.nameArPlaceholder')} /></div>
+            <div className="space-y-2"><Label>{tc('settings.cities.nameEn')}</Label><Input value={form.name_en} onChange={e => setForm(p => ({ ...p, name_en: e.target.value }))} placeholder="e.g. Karkh" dir="ltr" /></div>
+            <div className="space-y-2"><Label>{tc('settings.cities.governorate')} <span className="text-red-500">*</span></Label><Select value={form.governorate_id} onValueChange={v => setForm(p => ({ ...p, governorate_id: v }))} dir="rtl"><SelectTrigger><SelectValue placeholder={tc('settings.cities.selectGovernorate')} /></SelectTrigger><SelectContent>{governorates.map(item => <SelectItem key={item.id} value={String(item.id)}>{entityName(item)}</SelectItem>)}</SelectContent></Select></div>
+            <div className="space-y-2"><Label>{tc('common.status')}</Label><Select value={form.status} onValueChange={v => setForm(p => ({ ...p, status: v }))} dir="rtl"><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="1">{tc('status.active')}</SelectItem><SelectItem value="0">{tc('status.inactive')}</SelectItem></SelectContent></Select></div>
           </div>
           <div className="flex gap-3 mt-8">
-            <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white gap-2" onClick={handleSave} disabled={saving}>{saving && <Loader2 className="w-4 h-4 animate-spin" />}{editing ? 'حفظ التعديلات' : 'إضافة المدينة'}</Button>
-            <Button variant="outline" onClick={() => setSheetOpen(false)} disabled={saving}>إلغاء</Button>
+            <Button className="flex-1 bg-teal-600 hover:bg-teal-700 text-white gap-2" onClick={handleSave} disabled={saving}>{saving && <Loader2 className="w-4 h-4 animate-spin" />}{editing ? tc('btn.saveChanges') : tc('settings.cities.add')}</Button>
+            <Button variant="outline" onClick={() => setSheetOpen(false)} disabled={saving}>{tc('btn.cancel')}</Button>
           </div>
         </SheetContent>
       </Sheet>
 
       <AlertDialog open={!!toDelete} onOpenChange={open => !open && setToDelete(null)}>
         <AlertDialogContent className="dark:bg-[#0f0f11] dark:border-zinc-800">
-          <AlertDialogHeader><AlertDialogTitle className="text-right">تأكيد الحذف</AlertDialogTitle><AlertDialogDescription className="text-right">هل تريد حذف مدينة "{entityName(toDelete)}"؟ لا يمكن التراجع عن هذا الإجراء.</AlertDialogDescription></AlertDialogHeader>
-          <AlertDialogFooter className="flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2 mt-4"><AlertDialogCancel className="mt-0">إلغاء</AlertDialogCancel><AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white" onClick={handleDelete}>حذف نهائي</AlertDialogAction></AlertDialogFooter>
+          <AlertDialogHeader><AlertDialogTitle className="text-right">{tc('common.deleteConfirmTitle')}</AlertDialogTitle><AlertDialogDescription className="text-right">{tc('settings.cities.deleteConfirm', { name: entityName(toDelete) })}</AlertDialogDescription></AlertDialogHeader>
+          <AlertDialogFooter className="flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2 mt-4"><AlertDialogCancel className="mt-0">{tc('btn.cancel')}</AlertDialogCancel><AlertDialogAction className="bg-red-600 hover:bg-red-700 text-white" onClick={handleDelete}>{tc('btn.deletePermanent')}</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>

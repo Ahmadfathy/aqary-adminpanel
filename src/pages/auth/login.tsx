@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { LogIn, Phone, Lock, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../store/auth.store';
 import { AuthAPI } from '../../lib/api-client';
 import logo from '../../assets/logo.png';
@@ -18,6 +19,7 @@ const countryCodes = [
 ];
 
 export function LoginPage() {
+  const { t } = useTranslation('common');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [selectedCode, setSelectedCode] = useState(countryCodes[0].code);
@@ -46,7 +48,7 @@ export function LoginPage() {
       login(token);
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'حدث خطأ في تسجيل الدخول. يرجى التأكد من البيانات.');
+      setError(err.response?.data?.message || t('auth.error'));
     } finally {
       setIsLoading(false);
     }
@@ -87,13 +89,13 @@ export function LoginPage() {
           >
             <img src={logo} alt="Aqary Logo" className="w-full h-full object-contain drop-shadow-md" />
           </motion.div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">أهلاً بك في عقاري</h1>
-          <p className="text-slate-300 text-xs sm:text-sm">قم بتسجيل الدخول للمتابعة إلى لوحة التحكم</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">{t('auth.welcome')}</h1>
+          <p className="text-slate-300 text-xs sm:text-sm">{t('auth.subtitle')}</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-5 sm:space-y-6">
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-200">رقم الهاتف</label>
+            <label className="block text-sm font-medium text-slate-200">{t('auth.phone')}</label>
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="w-full sm:w-32 order-1 sm:order-2">
                 <select
@@ -127,7 +129,7 @@ export function LoginPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-200">كلمة المرور</label>
+            <label className="block text-sm font-medium text-slate-200">{t('auth.password')}</label>
             <div className="relative">
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                 <Lock className="h-5 w-5 text-slate-400" />
@@ -165,7 +167,7 @@ export function LoginPage() {
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <>
-                <span>تسجيل الدخول</span>
+                <span>{t('auth.login')}</span>
                 <LogIn className="w-5 h-5" />
               </>
             )}
@@ -174,7 +176,7 @@ export function LoginPage() {
 
         <div className="mt-8 text-center">
           <p className="text-slate-400 text-xs">
-            بتسجيل الدخول، أنت توافق على شروط الخدمة وسياسة الخصوصية الخاصة بنا
+            {t('auth.terms')}
           </p>
         </div>
       </motion.div>

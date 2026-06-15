@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useParams, useNavigate } from 'react-router-dom'
 import { AdminPropertiesAPI } from '@/lib/api-client'
 import { Button } from '@/components/ui/button'
@@ -44,13 +45,15 @@ const n = (val: any): string => {
 }
 
 const purposeMap: Record<string, string> = {
-  sale: 'للبيع', rent: 'للإيجار', buy: 'طلب شراء',
+  sale: 'property.detail.forSale',
+  rent: 'property.detail.forRent',
+  buy: 'property.detail.buyRequest',
 }
 
-const categoryName = (cat: any): string => {
+const categoryName = (cat: any, tabu = ''): string => {
   const name = n(cat)
   if (!name) return ''
-  return `طابو ${name}`
+  return tabu ? `${tabu} ${name}` : name
 }
 
 const facadeMap: Record<string, string> = {
@@ -68,10 +71,10 @@ const floorMap: Record<string, string> = {
 
 // ── status ────────────────────────────────────────────────────────────────────
 
-function statusCfg(status: any) {
+function statusCfg(status: any, t: (k: string) => string) {
   if (status === 'approved' || status === 'active' || status === 1 || status === true)
     return {
-      label: 'تم الموافقة', sub: 'العقار معتمد ومنشور للمستخدمين', Icon: CheckCircle,
+      label: t('property.detail.statusApproved'), sub: t('property.detail.statusApprovedSub'), Icon: CheckCircle,
       banner: 'bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/30',
       text: 'text-emerald-700 dark:text-emerald-400',
       badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400',
@@ -79,8 +82,8 @@ function statusCfg(status: any) {
     }
   if (status === 'rejected' || status === 'suspended' || status === 0 || status === false)
     return {
-      label: status === 'rejected' ? 'مرفوض' : 'موقوف',
-      sub: status === 'rejected' ? 'تم رفض العقار من قبل الإدارة' : 'تم إيقاف العقار مؤقتاً',
+      label: status === 'rejected' ? t('property.detail.statusRejected') : t('property.detail.statusSuspended'),
+      sub: status === 'rejected' ? t('property.detail.statusRejectedSub') : t('property.detail.statusSuspendedSub'),
       Icon: Ban,
       banner: 'bg-red-50 border-red-200 dark:bg-red-500/10 dark:border-red-500/30',
       text: 'text-red-700 dark:text-red-400',
@@ -88,7 +91,7 @@ function statusCfg(status: any) {
       approved: false, rejected: true,
     }
   return {
-    label: 'قيد المراجعة', sub: 'بانتظار مراجعة الإدارة والموافقة عليه', Icon: Clock,
+    label: t('property.detail.statusPending'), sub: t('property.detail.statusPendingSub'), Icon: Clock,
     banner: 'bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/30',
     text: 'text-amber-700 dark:text-amber-400',
     badge: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400',
@@ -148,6 +151,7 @@ function buildMediaItems(prop: any): MediaItem[] {
 // ── page ──────────────────────────────────────────────────────────────────────
 
 export function PropertyDetailPage() {
+  const { t: tc } = useTranslation('common')
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
@@ -217,14 +221,14 @@ export function PropertyDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <Home className="w-12 h-12 text-zinc-300 dark:text-zinc-700" />
-        <p className="text-zinc-500 dark:text-zinc-400">لم يتم العثور على العقار</p>
-        <Button variant="outline" onClick={() => navigate(-1)}><ArrowRight className="w-4 h-4 ml-2" />العودة</Button>
+        <p className="text-zinc-500 dark:text-zinc-400">{tc('property.detail.notFound')}</p>
+        <Button variant="outline" onClick={() => navigate(-1)}><ArrowRight className="w-4 h-4 ml-2" />{tc('btn.back')}</Button>
       </div>
     )
 
   // ── derived values ────────────────────────────────────────────────────────
 
-  const s = statusCfg(property.status)
+  const s = statusCfg(property.status, tc)
   const SIcon = s.Icon
 
   const fmt = (dateStr: string) =>
@@ -246,14 +250,14 @@ export function PropertyDetailPage() {
             <ArrowRight className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{property.title || 'عقار بدون عنوان'}</h1>
+            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{property.title || tc('property.detail.noTitle')}</h1>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1.5">
               <span className="text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-1">
                 <Hash className="w-3.5 h-3.5" />#{property.id}
               </span>
               {property.purpose && (
                 <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${s.badge}`}>
-                  {purposeMap[property.purpose] || property.purpose}
+                  {purposeMap[property.purpose] ? tc(purposeMap[property.purpose]) : property.purpose}
                 </span>
               )}
               {n(property.property_type) && (
@@ -261,9 +265,9 @@ export function PropertyDetailPage() {
                   {n(property.property_type)}
                 </span>
               )}
-              {categoryName(property.property_category) && (
+              {categoryName(property.property_category, tc('property.detail.tabu')) && (
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">
-                  {categoryName(property.property_category)}
+                  {categoryName(property.property_category, tc('property.detail.tabu'))}
                 </span>
               )}
             </div>
@@ -327,7 +331,7 @@ export function PropertyDetailPage() {
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-zinc-300 dark:text-zinc-700">
                   <ImageOff className="w-14 h-14" />
-                  <span className="text-sm">لا توجد وسائط</span>
+                  <span className="text-sm">{tc('property.detail.noMedia')}</span>
                 </div>
               )}
             </div>
@@ -353,10 +357,10 @@ export function PropertyDetailPage() {
           {/* Quick stats bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { icon: Maximize2, label: 'المساحة', value: property.area_size ? `${parseFloat(property.area_size).toLocaleString()} م²` : null },
-              { icon: BedDouble, label: 'الغرف', value: property.rooms_count ?? null },
-              { icon: Bath, label: 'الحمامات', value: property.bathrooms_count ?? null },
-              { icon: Home, label: 'الصالات', value: property.halls_count ?? null },
+              { icon: Maximize2, label: tc('property.detail.area'), value: property.area_size ? `${parseFloat(property.area_size).toLocaleString()} ${tc('property.detail.sqm')}` : null },
+              { icon: BedDouble, label: tc('property.detail.rooms'), value: property.rooms_count ?? null },
+              { icon: Bath, label: tc('property.detail.bathrooms'), value: property.bathrooms_count ?? null },
+              { icon: Home, label: tc('property.detail.halls'), value: property.halls_count ?? null },
             ].filter(x => x.value !== null).map(({ icon: Icon, label, value }) => (
               <Card key={label} className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] p-4 flex flex-col items-center gap-1">
                 <Icon className="w-5 h-5 text-teal-600" />
@@ -369,7 +373,7 @@ export function PropertyDetailPage() {
           {/* Description */}
           {property.description && (
             <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] p-5">
-              <SectionTitle>وصف العقار</SectionTitle>
+              <SectionTitle>{tc('property.detail.description')}</SectionTitle>
               <p className="text-sm text-zinc-600 dark:text-zinc-400 leading-loose whitespace-pre-line">{property.description}</p>
             </Card>
           )}
@@ -377,7 +381,7 @@ export function PropertyDetailPage() {
           {/* Features */}
           {Array.isArray(property.features) && property.features.length > 0 && (
             <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] p-5">
-              <SectionTitle>المميزات والخدمات</SectionTitle>
+              <SectionTitle>{tc('property.detail.features')}</SectionTitle>
               <div className="flex flex-wrap gap-2">
                 {property.features.map((f: any) => {
                   const FIcon = featureIcons[f.code] ?? CheckCircle
@@ -399,7 +403,7 @@ export function PropertyDetailPage() {
 
           {/* Price */}
           <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] p-5">
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">السعر الإجمالي</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">{tc('property.detail.totalPrice')}</p>
             <div className="flex items-baseline gap-1.5">
               <DollarSign className="w-5 h-5 text-teal-600" />
               <span className="text-2xl font-bold text-zinc-900 dark:text-white" dir="ltr">
@@ -415,33 +419,33 @@ export function PropertyDetailPage() {
             )}
             {property.is_negotiable && (
               <span className="inline-flex items-center gap-1.5 mt-2 text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-1 rounded-full">
-                <HandshakeIcon className="w-3.5 h-3.5" />قابل للتفاوض
+                <HandshakeIcon className="w-3.5 h-3.5" />{tc('property.detail.negotiable')}
               </span>
             )}
           </Card>
 
           {/* Property details */}
           <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] p-5">
-            <SectionTitle>تفاصيل العقار</SectionTitle>
-            <Row icon={Home} label="نوع العقار" value={n(property.property_type)} />
-            <Row icon={Building2} label="تصنيف العقار" value={categoryName(property.property_category)} />
-            <Row icon={Maximize2} label="المساحة" value={property.area_size ? `${parseFloat(property.area_size).toLocaleString()} م²` : null} />
-            <Row icon={Layers} label="الطابق" value={property.details?.floor_label ? (floorMap[property.details.floor_label] || property.details.floor_label) : null} />
-            <Row icon={Building2} label="عدد طوابق المبنى" value={property.building_floors_count} />
-            <Row icon={Clock} label="عمر البناء" value={property.building_age ? `${property.building_age} سنة` : null} />
-            <Row icon={Wind} label="اتجاه الواجهة" value={property.details?.facade_direction ? (facadeMap[property.details.facade_direction] || property.details.facade_direction) : null} />
-            <Row icon={Sofa} label="مفروش" value={property.is_furnished !== undefined ? (property.is_furnished ? 'نعم' : 'لا') : null} />
-            <Row icon={Calendar} label="تاريخ الإضافة" value={property.created_at ? fmt(property.created_at) : null} />
-            {property.approved_at && <Row icon={CheckCircle} label="تاريخ الموافقة" value={fmt(property.approved_at)} />}
+            <SectionTitle>{tc('property.detail.details')}</SectionTitle>
+            <Row icon={Home} label={tc('property.detail.type')} value={n(property.property_type)} />
+            <Row icon={Building2} label={tc('property.detail.category')} value={categoryName(property.property_category, tc('property.detail.tabu'))} />
+            <Row icon={Maximize2} label={tc('property.detail.area')} value={property.area_size ? `${parseFloat(property.area_size).toLocaleString()} ${tc('property.detail.sqm')}` : null} />
+            <Row icon={Layers} label={tc('property.detail.floor')} value={property.details?.floor_label ? (floorMap[property.details.floor_label] || property.details.floor_label) : null} />
+            <Row icon={Building2} label={tc('property.detail.buildingFloors')} value={property.building_floors_count} />
+            <Row icon={Clock} label={tc('property.detail.buildingAge')} value={property.building_age ? `${property.building_age} ${tc('property.detail.year')}` : null} />
+            <Row icon={Wind} label={tc('property.detail.facadeDirection')} value={property.details?.facade_direction ? (facadeMap[property.details.facade_direction] || property.details.facade_direction) : null} />
+            <Row icon={Sofa} label={tc('property.detail.furnished')} value={property.is_furnished !== undefined ? (property.is_furnished ? tc('property.detail.yes') : tc('property.detail.no')) : null} />
+            <Row icon={Calendar} label={tc('property.detail.addedDate')} value={property.created_at ? fmt(property.created_at) : null} />
+            {property.approved_at && <Row icon={CheckCircle} label={tc('property.detail.approvedDate')} value={fmt(property.approved_at)} />}
           </Card>
 
           {/* Location */}
           <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] p-5">
-            <SectionTitle>الموقع</SectionTitle>
-            <Row icon={Building2} label="المحافظة" value={n(property.governorate) || n(property.state) || n(property.province)} />
-            <Row icon={Building2} label="المدينة" value={n(property.city)} />
-            <Row icon={MapPin} label="المنطقة" value={n(property.area)} />
-            <Row icon={MapPin} label="العنوان التفصيلي" value={property.address || property.formatted_address} />
+            <SectionTitle>{tc('property.detail.locationSection')}</SectionTitle>
+            <Row icon={Building2} label={tc('property.detail.governorate')} value={n(property.governorate) || n(property.state) || n(property.province)} />
+            <Row icon={Building2} label={tc('property.detail.city')} value={n(property.city)} />
+            <Row icon={MapPin} label={tc('property.detail.region')} value={n(property.area)} />
+            <Row icon={MapPin} label={tc('property.detail.address')} value={property.address || property.formatted_address} />
             {property.latitude && property.longitude && (
               <div className="pt-2.5">
                 <a
@@ -449,7 +453,7 @@ export function PropertyDetailPage() {
                   target="_blank" rel="noopener noreferrer"
                   className="text-sm text-teal-600 hover:text-teal-700 dark:text-teal-400 hover:underline flex items-center gap-1.5"
                 >
-                  <MapPin className="w-4 h-4" />عرض على خرائط Google
+                  <MapPin className="w-4 h-4" />{tc('property.detail.viewOnMap')}
                 </a>
               </div>
             )}
@@ -458,7 +462,7 @@ export function PropertyDetailPage() {
           {/* Owner */}
           {property.owner && (
             <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] p-5">
-              <SectionTitle>معلومات المالك</SectionTitle>
+              <SectionTitle>{tc('property.detail.ownerInfo')}</SectionTitle>
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-11 w-11 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center shrink-0">
                   <User className="w-5 h-5 text-zinc-400" />
@@ -466,29 +470,29 @@ export function PropertyDetailPage() {
                 <div>
                   <p className="font-semibold text-zinc-900 dark:text-zinc-100">{property.owner.name}</p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {property.owner.user_type === 'office' ? 'مكتب عقاري'
-                      : property.owner.user_type === 'agent' ? 'وسيط عقاري'
-                      : 'عميل / مالك'}
+                    {property.owner.user_type === 'office' ? tc('offices.type')
+                      : property.owner.user_type === 'agent' ? tc('property.detail.agentType')
+                      : tc('property.detail.clientOwner')}
                   </p>
                 </div>
               </div>
               {ownerPhone && (
-                <Row icon={Phone} label="الهاتف" value={
+                <Row icon={Phone} label={tc('property.detail.ownerPhone')} value={
                   <a href={`tel:${ownerPhone}`} className="text-teal-600 dark:text-teal-400 hover:underline" dir="ltr">
                     {ownerPhone}
                   </a>
                 } />
               )}
-              <Row icon={Eye} label="رقم المالك" value={`#${property.owner.id}`} />
+              <Row icon={Eye} label={tc('property.detail.ownerId')} value={`#${property.owner.id}`} />
             </Card>
           )}
 
           {/* Approved by */}
           {property.approved_by && s.approved && (
             <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] p-5">
-              <SectionTitle>معلومات الاعتماد</SectionTitle>
-              <Row icon={CheckCircle} label="اعتمد بواسطة" value={property.approved_by.name} />
-              <Row icon={Calendar} label="تاريخ الاعتماد" value={property.approved_at ? fmt(property.approved_at) : null} />
+              <SectionTitle>{tc('property.detail.approvalInfo')}</SectionTitle>
+              <Row icon={CheckCircle} label={tc('property.detail.approvedBy')} value={property.approved_by.name} />
+              <Row icon={Calendar} label={tc('property.detail.approvalDate')} value={property.approved_at ? fmt(property.approved_at) : null} />
             </Card>
           )}
 
@@ -503,13 +507,13 @@ export function PropertyDetailPage() {
               {property.rejection_reason && (
                 <p className="text-xs text-red-600 dark:text-red-400 mt-0.5 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3 shrink-0" />
-                  سبب الرفض: {property.rejection_reason}
+                  {tc('property.detail.rejectionReason')} {property.rejection_reason}
                 </p>
               )}
               {property.approved_at && s.approved && (
                 <p className="text-xs text-zinc-400 mt-0.5">
-                  تمت الموافقة بتاريخ {fmt(property.approved_at)}
-                  {property.approved_by && ` · بواسطة ${property.approved_by.name}`}
+                  {tc('property.detail.approvedOnDate')} {fmt(property.approved_at)}
+                  {property.approved_by && ` · ${tc('property.detail.by')} ${property.approved_by.name}`}
                 </p>
               )}
             </div>
@@ -517,19 +521,19 @@ export function PropertyDetailPage() {
 
           {/* Actions */}
           <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] p-5 space-y-2">
-            <SectionTitle>إجراءات</SectionTitle>
+            <SectionTitle>{tc('property.detail.actions')}</SectionTitle>
             {!s.approved && (
               <Button className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setConfirm('approve')}>
-                <CheckCircle className="w-4 h-4" />اعتماد العقار
+                <CheckCircle className="w-4 h-4" />{tc('property.detail.approveProperty')}
               </Button>
             )}
             {!s.rejected && (
               <Button variant="outline" className="w-full gap-2 border-orange-300 text-orange-600 hover:bg-orange-50 dark:border-orange-500/30 dark:hover:bg-orange-500/10" onClick={() => setConfirm('reject')}>
-                <Ban className="w-4 h-4" />إيقاف العقار
+                <Ban className="w-4 h-4" />{tc('property.detail.suspendProperty')}
               </Button>
             )}
             <Button variant="outline" className="w-full gap-2 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-500/30 dark:hover:bg-red-500/10" onClick={() => setConfirm('delete')}>
-              <Trash2 className="w-4 h-4" />حذف نهائي
+              <Trash2 className="w-4 h-4" />{tc('btn.deletePermanent')}
             </Button>
           </Card>
         </div>
@@ -627,33 +631,33 @@ export function PropertyDetailPage() {
         <AlertDialogContent className="dark:bg-[#0f0f11] dark:border-zinc-800">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-right text-zinc-900 dark:text-zinc-100">
-              {confirm === 'approve' && 'تأكيد اعتماد العقار'}
-              {confirm === 'reject' && 'تأكيد إيقاف العقار'}
-              {confirm === 'delete' && 'تأكيد الحذف النهائي'}
+              {confirm === 'approve' && tc('property.detail.confirmApprove')}
+              {confirm === 'reject' && tc('property.detail.confirmSuspend')}
+              {confirm === 'delete' && tc('property.detail.confirmDelete')}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-right text-zinc-500 dark:text-zinc-400">
-              {confirm === 'approve' && 'سيتم اعتماد العقار ونشره للمستخدمين. هل تريد المتابعة؟'}
-              {confirm === 'reject' && 'سيتم إيقاف العقار وإخفاؤه عن المستخدمين. هل تريد المتابعة؟'}
-              {confirm === 'delete' && 'سيتم حذف العقار نهائياً مع جميع بياناته وصوره. لا يمكن التراجع عن هذا الإجراء.'}
+              {confirm === 'approve' && tc('property.detail.confirmApproveMsg')}
+              {confirm === 'reject' && tc('property.detail.confirmSuspendMsg')}
+              {confirm === 'delete' && tc('property.detail.confirmDeleteMsg')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2 mt-2">
             <AlertDialogCancel disabled={actionLoading} className="mt-0 border-zinc-200 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800">
-              إلغاء
+              {tc('btn.cancel')}
             </AlertDialogCancel>
             <AlertDialogAction
               disabled={actionLoading}
               className={confirm === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : confirm === 'reject' ? 'bg-orange-600 hover:bg-orange-700 text-white' : 'bg-red-600 hover:bg-red-700 text-white'}
               onClick={() => {
                 if (confirm === 'approve') act(() => AdminPropertiesAPI.approveProperty(id!))
-                else if (confirm === 'reject') act(() => AdminPropertiesAPI.rejectProperty(id!, 'مرفوض من قبل الإدارة'))
+                else if (confirm === 'reject') act(() => AdminPropertiesAPI.rejectProperty(id!, tc('property.rejectedByAdmin')))
                 else if (confirm === 'delete') act(async () => { await AdminPropertiesAPI.deleteProperty(id!); navigate(-1) })
               }}
             >
               {actionLoading && <Loader2 className="w-4 h-4 animate-spin ml-2" />}
-              {confirm === 'approve' && 'اعتماد العقار'}
-              {confirm === 'reject' && 'إيقاف العقار'}
-              {confirm === 'delete' && 'حذف نهائي'}
+              {confirm === 'approve' && tc('property.detail.approveProperty')}
+              {confirm === 'reject' && tc('property.detail.suspendProperty')}
+              {confirm === 'delete' && tc('btn.deletePermanent')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

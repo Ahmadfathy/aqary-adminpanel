@@ -8,6 +8,7 @@ import { RecentUsers } from '@/components/dashboard/RecentUsers'
 
 export function DashboardPage() {
   const { t } = useTranslation('menu')
+  const { t: tc } = useTranslation('common')
   const [stats, setStats] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
 
@@ -27,7 +28,7 @@ export function DashboardPage() {
 
   const statCards = [
     {
-      title: 'إجمالي المستخدمين',
+      title: tc('dashboard.totalUsers'),
       value: stats?.users?.total ?? stats?.total_users ?? stats?.users_count ?? 0,
       icon: Users,
       color: 'from-blue-500/20 to-cyan-500/20',
@@ -36,7 +37,7 @@ export function DashboardPage() {
       trendUp: true
     },
     {
-      title: 'العقارات',
+      title: tc('dashboard.properties'),
       value: stats?.properties?.total ?? stats?.total_properties ?? stats?.properties_count ?? 0,
       icon: Home,
       color: 'from-emerald-500/20 to-teal-500/20',
@@ -45,7 +46,7 @@ export function DashboardPage() {
       trendUp: true
     },
     {
-      title: 'المواعيد',
+      title: tc('dashboard.appointments'),
       value: stats?.appointments?.total ?? stats?.total_appointments ?? stats?.appointments_count ?? 0,
       icon: Calendar,
       color: 'from-orange-500/20 to-amber-500/20',
@@ -54,7 +55,7 @@ export function DashboardPage() {
       trendUp: false
     },
     {
-      title: 'الصفقات',
+      title: tc('dashboard.deals'),
       value: stats?.deals?.total ?? stats?.total_deals ?? stats?.deals_count ?? 0,
       icon: Handshake,
       color: 'from-purple-500/20 to-pink-500/20',

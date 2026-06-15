@@ -21,6 +21,7 @@ import { DataTable } from '@/components/ui/data-table'
 
 export function RealEstateOfficesPage() {
   const { t } = useTranslation('menu')
+  const { t: tc } = useTranslation('common')
   const [offices, setOffices] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [officeToDelete, setOfficeToDelete] = useState<number | null>(null)
@@ -71,11 +72,11 @@ export function RealEstateOfficesPage() {
     () => [
       {
         accessorKey: "name",
-        header: "المكتب",
+        header: tc('offices.col'),
         enableSorting: true,
         cell: ({ row }) => {
           const office = row.original
-          const name = office.name || `${office.first_name || ''} ${office.last_name || ''}`.trim() || 'بدون إسم'
+          const name = office.name || `${office.first_name || ''} ${office.last_name || ''}`.trim() || tc('common.noName')
           return (
             <div className="flex items-center gap-3">
               <Avatar className="h-9 w-9 border border-zinc-200 dark:border-zinc-800">
@@ -101,7 +102,7 @@ export function RealEstateOfficesPage() {
       },
       {
         accessorKey: "email",
-        header: "البريد الإلكتروني",
+        header: tc('common.email'),
         enableHiding: true,
         cell: ({ row }) => (
           <p dir="ltr" className="text-right text-sm text-zinc-600 dark:text-zinc-400">
@@ -111,7 +112,7 @@ export function RealEstateOfficesPage() {
       },
       {
         accessorKey: "mobile",
-        header: "رقم الهاتف",
+        header: tc('common.phone'),
         enableHiding: true,
         cell: ({ row }) => (
           <p dir="ltr" className="text-right text-sm text-zinc-600 dark:text-zinc-400">
@@ -121,7 +122,7 @@ export function RealEstateOfficesPage() {
       },
       {
         accessorKey: "status",
-        header: "الحالة",
+        header: tc('common.status'),
         enableSorting: true,
         cell: ({ row }) => {
           const status = row.original.status
@@ -132,14 +133,14 @@ export function RealEstateOfficesPage() {
                 ? 'text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10'
                 : 'text-red-700 bg-red-50 dark:text-red-400 dark:bg-red-500/10'
             }`}>
-              {isActive ? <><CheckCircle2 className="w-3.5 h-3.5" /> نشط</> : <><XCircle className="w-3.5 h-3.5" /> موقوف</>}
+              {isActive ? <><CheckCircle2 className="w-3.5 h-3.5" /> {tc('status.active')}</> : <><XCircle className="w-3.5 h-3.5" /> {tc('status.suspended')}</>}
             </span>
           )
         },
       },
       {
         accessorKey: "created_at",
-        header: "تاريخ الانضمام",
+        header: tc('common.joinDate'),
         enableSorting: true,
         cell: ({ row }) => (
           <span className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -163,20 +164,20 @@ export function RealEstateOfficesPage() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 dark:bg-zinc-900 dark:border-zinc-800">
                 <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setSelectedOffice(office)}>
-                  <Building2 className="w-4 h-4" /> عرض التفاصيل
+                  <Building2 className="w-4 h-4" /> {tc('btn.viewDetails')}
                 </DropdownMenuItem>
                 <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => toggleStatus(office.id)}>
                   {isActive ? (
-                    <><XCircle className="w-4 h-4 text-orange-500" /> <span className="text-orange-500">إيقاف الحساب</span></>
+                    <><XCircle className="w-4 h-4 text-orange-500" /> <span className="text-orange-500">{tc('common.deactivateAccount')}</span></>
                   ) : (
-                    <><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-emerald-500">تفعيل الحساب</span></>
+                    <><CheckCircle2 className="w-4 h-4 text-emerald-500" /> <span className="text-emerald-500">{tc('common.activateAccount')}</span></>
                   )}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="gap-2 cursor-pointer text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-500/10"
                   onClick={() => setOfficeToDelete(office.id)}
                 >
-                  <Trash2 className="w-4 h-4" /> حذف المكتب
+                  <Trash2 className="w-4 h-4" /> {tc('offices.deleteBtn')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -184,14 +185,14 @@ export function RealEstateOfficesPage() {
         },
       },
     ],
-    []
+    [tc]
   )
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-400">
-          {t('realEstateOffices') || 'المكاتب العقارية'}
+          {t('realEstateOffices') || tc('offices.title')}
         </h1>
       </div>
 
@@ -201,9 +202,9 @@ export function RealEstateOfficesPage() {
           data={offices}
           isLoading={isLoading}
           searchKey="name"
-          searchPlaceholder="البحث بالاسم..."
+          searchPlaceholder={tc('common.searchByName')}
           emptyIcon={<Search className="h-5 w-5 text-zinc-400" />}
-          emptyMessage="لا يوجد مكاتب عقارية يطابقون بحثك"
+          emptyMessage={tc('offices.noFound')}
         />
       </Card>
 
@@ -220,18 +221,18 @@ export function RealEstateOfficesPage() {
       <AlertDialog open={officeToDelete !== null} onOpenChange={(open) => !open && setOfficeToDelete(null)}>
         <AlertDialogContent className="dark:bg-[#0f0f11] dark:border-zinc-800">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-right text-zinc-900 dark:text-zinc-100">تأكيد الحذف</AlertDialogTitle>
+            <AlertDialogTitle className="text-right text-zinc-900 dark:text-zinc-100">{tc('common.deleteConfirmTitle')}</AlertDialogTitle>
             <AlertDialogDescription className="text-right text-zinc-500 dark:text-zinc-400">
-              هل أنت متأكد من حذف هذا المكتب نهائياً؟ لا يمكن التراجع عن هذا الإجراء.
+              {tc('offices.deleteConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2 mt-4">
-            <AlertDialogCancel className="mt-0 border-zinc-200 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800">إلغاء</AlertDialogCancel>
+            <AlertDialogCancel className="mt-0 border-zinc-200 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800">{tc('btn.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-red-600 hover:bg-red-700 text-white"
               onClick={() => officeToDelete && handleDelete(officeToDelete)}
             >
-              حذف نهائي
+              {tc('btn.deletePermanent')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -248,7 +249,8 @@ function OfficeInfoModal({ office, onClose, onToggleStatus, onDelete }: {
   onToggleStatus: () => void
   onDelete: () => void
 }) {
-  const name = office.name || `${office.first_name || ''} ${office.last_name || ''}`.trim() || 'بدون إسم'
+  const { t: tc } = useTranslation('common')
+  const name = office.name || `${office.first_name || ''} ${office.last_name || ''}`.trim() || tc('common.noName')
   const isActive = office.status === true || office.status === 'active' || office.status === 1 || office.status === '1'
   const phone = office.full_mobile || (office.country_code && office.mobile ? `${office.country_code}${office.mobile}` : office.mobile) || null
   const cities: any[] = Array.isArray(office.allowed_cities) ? office.allowed_cities : []
@@ -271,7 +273,7 @@ function OfficeInfoModal({ office, onClose, onToggleStatus, onDelete }: {
       >
         {/* header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
-          <h2 className="font-semibold text-zinc-900 dark:text-white">بيانات المكتب العقاري</h2>
+          <h2 className="font-semibold text-zinc-900 dark:text-white">{tc('offices.modalTitle')}</h2>
           <button onClick={onClose} className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition">
             <X className="w-5 h-5" />
           </button>
@@ -290,14 +292,14 @@ function OfficeInfoModal({ office, onClose, onToggleStatus, onDelete }: {
             {officeName && <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5">{officeName}</p>}
             <div className="flex items-center gap-2 mt-1.5 flex-wrap">
               <span className="text-xs px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20">
-                مكتب عقاري
+                {tc('offices.type')}
               </span>
               <span className={`text-xs px-2 py-0.5 rounded-full border ${
                 isActive
                   ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
                   : 'bg-red-50 text-red-700 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20'
               }`}>
-                {isActive ? 'نشط' : 'موقوف'}
+                {isActive ? tc('status.active') : tc('status.suspended')}
               </span>
             </div>
           </div>
@@ -305,30 +307,30 @@ function OfficeInfoModal({ office, onClose, onToggleStatus, onDelete }: {
 
         {/* info rows */}
         <div className="px-5 py-4 space-y-0.5 overflow-y-auto flex-1">
-          <InfoRow icon={<Hash className="w-4 h-4" />} label="رقم المعرّف">
+          <InfoRow icon={<Hash className="w-4 h-4" />} label={tc('common.id')}>
             <span className="text-zinc-700 dark:text-zinc-300">#{office.id}</span>
           </InfoRow>
 
           {office.email && (
-            <InfoRow icon={<Mail className="w-4 h-4" />} label="البريد الإلكتروني">
+            <InfoRow icon={<Mail className="w-4 h-4" />} label={tc('common.email')}>
               <span dir="ltr" className="text-zinc-700 dark:text-zinc-300">{office.email}</span>
             </InfoRow>
           )}
 
           {phone && (
-            <InfoRow icon={<Phone className="w-4 h-4" />} label="رقم الهاتف">
+            <InfoRow icon={<Phone className="w-4 h-4" />} label={tc('common.phone')}>
               <span dir="ltr" className="text-zinc-700 dark:text-zinc-300">{phone}</span>
             </InfoRow>
           )}
 
           {cityName && (
-            <InfoRow icon={<MapPin className="w-4 h-4" />} label="المدينة">
+            <InfoRow icon={<MapPin className="w-4 h-4" />} label={tc('common.city')}>
               <span className="text-zinc-700 dark:text-zinc-300">{cityName}</span>
             </InfoRow>
           )}
 
           {cities.length > 0 && (
-            <InfoRow icon={<MapPin className="w-4 h-4" />} label="المدن المسموحة">
+            <InfoRow icon={<MapPin className="w-4 h-4" />} label={tc('common.allowedCities')}>
               <div className="flex flex-wrap gap-1 justify-end max-w-[220px]">
                 {cities.map((c: any, i: number) => (
                   <span key={i} className="text-xs px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400">
@@ -340,13 +342,13 @@ function OfficeInfoModal({ office, onClose, onToggleStatus, onDelete }: {
           )}
 
           {licenseNo && (
-            <InfoRow icon={<Building2 className="w-4 h-4" />} label="رقم الترخيص">
+            <InfoRow icon={<Building2 className="w-4 h-4" />} label={tc('offices.licenseNo')}>
               <span dir="ltr" className="text-zinc-700 dark:text-zinc-300">{licenseNo}</span>
             </InfoRow>
           )}
 
           {office.created_at && (
-            <InfoRow icon={<Calendar className="w-4 h-4" />} label="تاريخ الانضمام">
+            <InfoRow icon={<Calendar className="w-4 h-4" />} label={tc('common.joinDate')}>
               <span className="text-zinc-700 dark:text-zinc-300">
                 {new Date(office.created_at).toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' })}
               </span>
@@ -364,7 +366,7 @@ function OfficeInfoModal({ office, onClose, onToggleStatus, onDelete }: {
               : 'gap-1.5 border-emerald-200 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-500/30 dark:hover:bg-emerald-500/10'}
             onClick={onToggleStatus}
           >
-            {isActive ? <><XCircle className="w-4 h-4" />إيقاف</> : <><CheckCircle2 className="w-4 h-4" />تفعيل</>}
+            {isActive ? <><XCircle className="w-4 h-4" />{tc('btn.deactivate')}</> : <><CheckCircle2 className="w-4 h-4" />{tc('btn.activate')}</>}
           </Button>
           <Button
             size="sm"
@@ -372,9 +374,9 @@ function OfficeInfoModal({ office, onClose, onToggleStatus, onDelete }: {
             className="gap-1.5 border-red-200 text-red-600 hover:bg-red-50 dark:border-red-500/30 dark:hover:bg-red-500/10 mr-auto"
             onClick={onDelete}
           >
-            <Trash2 className="w-4 h-4" /> حذف
+            <Trash2 className="w-4 h-4" /> {tc('btn.delete')}
           </Button>
-          <Button size="sm" variant="outline" onClick={onClose}>إغلاق</Button>
+          <Button size="sm" variant="outline" onClick={onClose}>{tc('btn.close')}</Button>
         </div>
       </div>
     </div>

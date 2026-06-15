@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { AdminProfileAPI } from '@/lib/api-client'
 import { Button } from '@/components/ui/button'
@@ -20,11 +21,12 @@ const countryCodes = [
 ]
 
 export function ProfileEditPage() {
+  const { t: tc } = useTranslation('common')
   const [isLoading, setIsLoading] = useState(false)
   const [isFetching, setIsFetching] = useState(true)
   const [errors, setErrors] = useState<string[]>([])
   const [successMsg, setSuccessMsg] = useState('')
-  
+
   const [formData, setFormData] = useState({
     name: '',
     first_name: '',
@@ -42,7 +44,7 @@ export function ProfileEditPage() {
         const response = await AdminProfileAPI.getProfile()
         let user = response.data?.data?.data || response.data?.data || response.data;
         if (user && user.user) user = user.user;
-        
+
         let firstName = user.first_name || '';
         let lastName = user.last_name || '';
         if (!firstName && !lastName && user.name) {
@@ -63,7 +65,7 @@ export function ProfileEditPage() {
         })
       } catch (err) {
         console.error("Failed to fetch profile", err)
-        setErrors(['فشل في جلب بيانات الملف الشخصي.'])
+        setErrors([tc('profilePage.fetchError')])
       } finally {
         setIsFetching(false)
       }
@@ -82,16 +84,16 @@ export function ProfileEditPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (formData.password && formData.password !== formData.password_confirmation) {
-      setErrors(['كلمة المرور وتأكيد كلمة المرور غير متطابقتين.'])
+      setErrors([tc('profilePage.passwordMismatch')])
       return
     }
 
     setIsLoading(true)
     setErrors([])
     setSuccessMsg('')
-    
+
     const payload: any = { ...formData }
     if (!payload.name) {
       payload.name = `${payload.first_name} ${payload.last_name}`.trim()
@@ -101,10 +103,10 @@ export function ProfileEditPage() {
       delete payload.password
       delete payload.password_confirmation
     }
-    
+
     try {
       await AdminProfileAPI.updateProfile(payload)
-      setSuccessMsg('تم تحديث البيانات بنجاح!')
+      setSuccessMsg(tc('profilePage.successMsg'))
       setFormData(prev => ({ ...prev, password: '', password_confirmation: '' }))
     } catch (err: any) {
       console.error("Failed to update profile", err)
@@ -113,7 +115,7 @@ export function ProfileEditPage() {
         const errorList = Object.values(data.errors).flat() as string[]
         setErrors(errorList.length > 0 ? errorList : [data.message || 'Validation error'])
       } else {
-        setErrors([data?.message || 'حدث خطأ أثناء حفظ البيانات.'])
+        setErrors([data?.message || tc('profilePage.saveError')])
       }
     } finally {
       setIsLoading(false)
@@ -137,17 +139,17 @@ export function ProfileEditPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-400 flex items-center gap-2">
             <UserCircle className="w-8 h-8 text-teal-600" />
-            تعديل الملف الشخصي
+            {tc('profilePage.editTitle')}
           </h1>
-          <p className="text-zinc-500 text-sm mt-1">تحديث معلومات حسابك الشخصي وإعدادات تسجيل الدخول</p>
+          <p className="text-zinc-500 text-sm mt-1">{tc('profilePage.editSubtitle')}</p>
         </div>
       </div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] shadow-sm overflow-hidden">
           <CardHeader className="bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-800">
-            <CardTitle>البيانات الأساسية</CardTitle>
-            <CardDescription>قم بتحديث بياناتك الشخصية للظهور بشكل أفضل في النظام</CardDescription>
+            <CardTitle>{tc('profilePage.basicData')}</CardTitle>
+            <CardDescription>{tc('profilePage.basicDataDesc')}</CardDescription>
           </CardHeader>
           <CardContent className="p-6 sm:p-8">
             {errors.length > 0 && (
@@ -159,7 +161,7 @@ export function ProfileEditPage() {
                 </ul>
               </div>
             )}
-            
+
             {successMsg && (
               <div className="mb-6 p-4 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-sm font-medium">
                 <CheckCircle2 className="w-5 h-5" />
@@ -170,7 +172,7 @@ export function ProfileEditPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label>الاسم الأول</Label>
+                  <Label>{tc('profilePage.firstName')}</Label>
                   <div className="relative">
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                       <User className="h-4 w-4 text-zinc-400" />
@@ -185,9 +187,9 @@ export function ProfileEditPage() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label>الاسم الأخير</Label>
+                  <Label>{tc('profilePage.lastName')}</Label>
                   <div className="relative">
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                       <User className="h-4 w-4 text-zinc-400" />
@@ -204,7 +206,7 @@ export function ProfileEditPage() {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label>البريد الإلكتروني</Label>
+                  <Label>{tc('common.email')}</Label>
                   <div className="relative">
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                       <Mail className="h-4 w-4 text-zinc-400" />
@@ -222,11 +224,11 @@ export function ProfileEditPage() {
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <Label>رقم الهاتف</Label>
+                  <Label>{tc('common.phone')}</Label>
                   <div className="flex gap-3">
                     <div className="w-32 shrink-0">
-                      <Select 
-                        value={formData.country_code} 
+                      <Select
+                        value={formData.country_code}
                         onValueChange={(val) => handleSelectChange('country_code', val)}
                         dir="ltr"
                       >
@@ -259,7 +261,7 @@ export function ProfileEditPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>تغيير كلمة المرور (اختياري)</Label>
+                  <Label>{tc('profilePage.passwordChange')}</Label>
                   <div className="relative">
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                       <Lock className="h-4 w-4 text-zinc-400" />
@@ -277,7 +279,7 @@ export function ProfileEditPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>تأكيد كلمة المرور الجديدة</Label>
+                  <Label>{tc('profilePage.confirmPassword')}</Label>
                   <div className="relative">
                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                       <Lock className="h-4 w-4 text-zinc-400" />
@@ -296,8 +298,8 @@ export function ProfileEditPage() {
               </div>
 
               <div className="pt-4 flex justify-end border-t border-zinc-200 dark:border-zinc-800 mt-6">
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={isLoading}
                   className="bg-teal-600 hover:bg-teal-700 text-white gap-2 min-w-[150px] shadow-sm"
                 >
@@ -306,7 +308,7 @@ export function ProfileEditPage() {
                   ) : (
                     <>
                       <Save className="w-4 h-4" />
-                      حفظ التغييرات
+                      {tc('btn.saveChanges')}
                     </>
                   )}
                 </Button>
