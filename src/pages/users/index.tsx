@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import type { ColumnDef } from '@tanstack/react-table'
@@ -27,7 +27,7 @@ export function UsersPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [userToDelete, setUserToDelete] = useState<number | null>(null)
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setIsLoading(true)
     try {
       const [adminResponse, supervisorResponse] = await Promise.all([
@@ -40,20 +40,20 @@ export function UsersPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchUsers()
-  }, [])
+  }, [fetchUsers])
 
-  const toggleStatus = async (id: number) => {
+  const toggleStatus = useCallback(async (id: number) => {
     try {
       await AdminUsersAPI.toggleStatus(id)
       fetchUsers()
     } catch (error) {
       console.error("Failed to toggle status", error)
     }
-  }
+  }, [fetchUsers])
 
   const handleDelete = async (id: number) => {
     try {
@@ -212,7 +212,7 @@ export function UsersPage() {
         },
       },
     ],
-    [navigate]
+    [navigate, toggleStatus]
   )
 
   return (
