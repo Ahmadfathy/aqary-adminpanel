@@ -9,7 +9,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
 import {
-  ArrowRight, Home, MapPin, DollarSign, CheckCircle, Ban, Loader2, Trash2,
+  ArrowRight, ArrowLeft, Home, MapPin, DollarSign, CheckCircle, Ban, Loader2, Trash2,
   User, Calendar, Maximize2, BedDouble, Bath, ChevronLeft, ChevronRight,
   Clock, Eye, Phone, Building2, Hash, AlertCircle, Sofa, HandshakeIcon,
   Layers, Wind, ImageOff, Car, Droplets, Shield, Flame, Wifi, Zap, Sun,
@@ -108,7 +108,7 @@ function Row({ icon: Icon, label, value }: { icon: any; label: string; value?: R
       <span className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 shrink-0">
         <Icon className="w-4 h-4" />{label}
       </span>
-      <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100 text-left">{value}</span>
+      <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100 text-end">{value}</span>
     </div>
   )
 }
@@ -151,7 +151,8 @@ function buildMediaItems(prop: any): MediaItem[] {
 // ── page ──────────────────────────────────────────────────────────────────────
 
 export function PropertyDetailPage() {
-  const { t: tc } = useTranslation('common')
+  const { t: tc, i18n } = useTranslation('common')
+  const isRtl = i18n.dir() === 'rtl'
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
@@ -222,7 +223,7 @@ export function PropertyDetailPage() {
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <Home className="w-12 h-12 text-zinc-300 dark:text-zinc-700" />
         <p className="text-zinc-500 dark:text-zinc-400">{tc('property.detail.notFound')}</p>
-        <Button variant="outline" onClick={() => navigate(-1)}><ArrowRight className="w-4 h-4 ml-2" />{tc('btn.back')}</Button>
+        <Button variant="outline" onClick={() => navigate(-1)}>{isRtl ? <ArrowRight className="w-4 h-4 me-2" /> : <ArrowLeft className="w-4 h-4 me-2" />}{tc('btn.back')}</Button>
       </div>
     )
 
@@ -241,13 +242,13 @@ export function PropertyDetailPage() {
   // ── render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-5" dir="rtl">
+    <div className="space-y-5" dir={i18n.dir()}>
 
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-zinc-500 hover:text-zinc-900 dark:hover:text-white mt-0.5 shrink-0">
-            <ArrowRight className="w-5 h-5" />
+            {isRtl ? <ArrowRight className="w-5 h-5" /> : <ArrowLeft className="w-5 h-5" />}
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">{property.title || tc('property.detail.noTitle')}</h1>
@@ -548,7 +549,7 @@ export function PropertyDetailPage() {
           {/* close */}
           <button
             onClick={() => setLightboxOpen(false)}
-            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition z-10"
+            className="absolute top-4 end-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition z-10"
           >
             <X className="w-6 h-6" />
           </button>
@@ -630,18 +631,18 @@ export function PropertyDetailPage() {
       <AlertDialog open={confirm !== null} onOpenChange={open => !open && setConfirm(null)}>
         <AlertDialogContent className="dark:bg-[#0f0f11] dark:border-zinc-800">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-right text-zinc-900 dark:text-zinc-100">
+            <AlertDialogTitle className="text-start text-zinc-900 dark:text-zinc-100">
               {confirm === 'approve' && tc('property.detail.confirmApprove')}
               {confirm === 'reject' && tc('property.detail.confirmSuspend')}
               {confirm === 'delete' && tc('property.detail.confirmDelete')}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-right text-zinc-500 dark:text-zinc-400">
+            <AlertDialogDescription className="text-start text-zinc-500 dark:text-zinc-400">
               {confirm === 'approve' && tc('property.detail.confirmApproveMsg')}
               {confirm === 'reject' && tc('property.detail.confirmSuspendMsg')}
               {confirm === 'delete' && tc('property.detail.confirmDeleteMsg')}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter className="flex-row-reverse sm:flex-row-reverse sm:justify-start gap-2 mt-2">
+          <AlertDialogFooter className={`gap-2 mt-2 ${isRtl ? 'flex-row-reverse sm:flex-row-reverse sm:justify-start' : 'flex-row sm:justify-end'}`}>
             <AlertDialogCancel disabled={actionLoading} className="mt-0 border-zinc-200 dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800">
               {tc('btn.cancel')}
             </AlertDialogCancel>
@@ -654,7 +655,7 @@ export function PropertyDetailPage() {
                 else if (confirm === 'delete') act(async () => { await AdminPropertiesAPI.deleteProperty(id!); navigate(-1) })
               }}
             >
-              {actionLoading && <Loader2 className="w-4 h-4 animate-spin ml-2" />}
+              {actionLoading && <Loader2 className="w-4 h-4 animate-spin me-2" />}
               {confirm === 'approve' && tc('property.detail.approveProperty')}
               {confirm === 'reject' && tc('property.detail.suspendProperty')}
               {confirm === 'delete' && tc('btn.deletePermanent')}
