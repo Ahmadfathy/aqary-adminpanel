@@ -12,7 +12,7 @@ import {
   User, Calendar, Maximize2, BedDouble, Bath, ChevronLeft, ChevronRight,
   Clock, Eye, Phone, Building2, Hash, AlertCircle, Sofa, HandshakeIcon,
   Layers, Wind, ImageOff, Car, Droplets, Shield, Flame, Wifi, Zap, Sun,
-  Waves, Dumbbell, Leaf, Camera, Thermometer, type LucideIcon,
+  Waves, Dumbbell, Leaf, Camera, Thermometer, PlayCircle, X, type LucideIcon,
 } from 'lucide-react'
 
 const featureIcons: Record<string, LucideIcon> = {
@@ -114,6 +114,37 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   return <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide mb-3">{children}</h2>
 }
 
+type MediaItem = { type: 'image' | 'video'; url: string }
+
+function extractMediaUrl(item: any): string {
+  if (!item) return ''
+  if (typeof item === 'string') return item
+  return item.media_url || item.image_url || item.url || item.path || item.image || item.src || item.original || item.video_url || item.file || ''
+}
+
+function isVideoItem(item: any, url: string): boolean {
+  return item?.type === 'video' || item?.media_type === 'video' || item?.is_video === true
+    || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(url)
+}
+
+// ── build media list ──────────────────────────────────────────────────────────
+
+function buildMediaItems(prop: any): MediaItem[] {
+  if (!prop) return []
+  const seen = new Set<string>()
+  const items: MediaItem[] = []
+  const add = (item: any) => {
+    const url = extractMediaUrl(item)
+    if (!url || seen.has(url)) return
+    seen.add(url)
+    items.push({ type: isVideoItem(item, url) ? 'video' : 'image', url })
+  }
+  if (prop.primary_image) add(prop.primary_image)
+  if (Array.isArray(prop.images)) prop.images.forEach(add)
+  if (Array.isArray(prop.videos)) prop.videos.forEach(add)
+  return items
+}
+
 // ── page ──────────────────────────────────────────────────────────────────────
 
 export function PropertyDetailPage() {
@@ -121,8 +152,10 @@ export function PropertyDetailPage() {
   const navigate = useNavigate()
 
   const [property, setProperty] = useState<any>(null)
+  const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [activeImg, setActiveImg] = useState(0)
+  const [activeMedia, setActiveMedia] = useState(0)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
   const [confirm, setConfirm] = useState<'approve' | 'reject' | 'delete' | null>(null)
   const [actionLoading, setActionLoading] = useState(false)
 
@@ -132,7 +165,10 @@ export function PropertyDetailPage() {
   const reload = async () => {
     if (!id) return
     const res = await AdminPropertiesAPI.getProperty(id)
-    setProperty(extract(res))
+    const prop = extract(res)
+    setProperty(prop)
+    setMediaItems(buildMediaItems(prop))
+    setActiveMedia(0)
   }
 
   useEffect(() => {
@@ -141,7 +177,10 @@ export function PropertyDetailPage() {
       setIsLoading(true)
       try {
         const res = await AdminPropertiesAPI.getProperty(id)
-        setProperty(extract(res))
+        const prop = extract(res)
+        setProperty(prop)
+        setMediaItems(buildMediaItems(prop))
+        setActiveMedia(0)
       } catch (e) {
         console.error(e)
       } finally {
@@ -149,6 +188,18 @@ export function PropertyDetailPage() {
       }
     })()
   }, [id])
+
+  useEffect(() => {
+    if (!lightboxOpen) return
+    const n = mediaItems.length
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxOpen(false)
+      if (e.key === 'ArrowLeft' && n > 1) setActiveMedia(p => (p - 1 + n) % n)
+      if (e.key === 'ArrowRight' && n > 1) setActiveMedia(p => (p + 1) % n)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [lightboxOpen, mediaItems.length])
 
   const act = async (fn: () => Promise<any>) => {
     setActionLoading(true)
@@ -175,22 +226,6 @@ export function PropertyDetailPage() {
 
   const s = statusCfg(property.status)
   const SIcon = s.Icon
-
-  // images: primary_image first, then images array
-  const extractUrl = (img: any): string => {
-    if (!img) return ''
-    if (typeof img === 'string') return img
-    return img?.url || img?.path || img?.image || img?.src || img?.original || ''
-  }
-
-  const imgs: string[] = []
-  const primaryUrl = extractUrl(property.primary_image)
-  if (primaryUrl) imgs.push(primaryUrl)
-  if (Array.isArray(property.images))
-    property.images.forEach((img: any) => {
-      const url = extractUrl(img)
-      if (url && !imgs.includes(url)) imgs.push(url)
-    })
 
   const fmt = (dateStr: string) =>
     new Date(dateStr).toLocaleDateString('ar-IQ', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -244,22 +279,47 @@ export function PropertyDetailPage() {
 
           {/* Gallery */}
           <Card className="border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0f0f11] overflow-hidden">
-            <div className="relative aspect-video bg-zinc-100 dark:bg-zinc-900">
-              {imgs.length > 0 ? (
+            <div className="relative aspect-video bg-zinc-100 dark:bg-zinc-900 group">
+              {mediaItems.length > 0 ? (
                 <>
-                  <img src={imgs[activeImg]} alt={property.title} className="w-full h-full object-cover" />
-                  {imgs.length > 1 && (
+                  {mediaItems[activeMedia].type === 'video' ? (
+                    <video
+                      key={mediaItems[activeMedia].url}
+                      src={mediaItems[activeMedia].url}
+                      controls
+                      className="w-full h-full object-contain bg-black"
+                    />
+                  ) : (
+                    <img
+                      src={mediaItems[activeMedia].url}
+                      alt={property.title}
+                      className="w-full h-full object-cover cursor-zoom-in"
+                      onClick={() => setLightboxOpen(true)}
+                    />
+                  )}
+
+                  {/* expand button */}
+                  {mediaItems[activeMedia].type === 'image' && (
+                    <button
+                      onClick={() => setLightboxOpen(true)}
+                      className="absolute top-3 left-3 p-1.5 rounded-lg bg-black/40 text-white opacity-0 group-hover:opacity-100 transition hover:bg-black/60"
+                    >
+                      <Maximize2 className="w-4 h-4" />
+                    </button>
+                  )}
+
+                  {mediaItems.length > 1 && (
                     <>
-                      <button onClick={() => setActiveImg(p => (p - 1 + imgs.length) % imgs.length)}
+                      <button onClick={() => setActiveMedia(p => (p - 1 + mediaItems.length) % mediaItems.length)}
                         className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 text-white hover:bg-black/60 transition">
                         <ChevronLeft className="w-5 h-5" />
                       </button>
-                      <button onClick={() => setActiveImg(p => (p + 1) % imgs.length)}
+                      <button onClick={() => setActiveMedia(p => (p + 1) % mediaItems.length)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 text-white hover:bg-black/60 transition">
                         <ChevronRight className="w-5 h-5" />
                       </button>
                       <span className="absolute bottom-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
-                        {activeImg + 1} / {imgs.length}
+                        {activeMedia + 1} / {mediaItems.length}
                       </span>
                     </>
                   )}
@@ -267,16 +327,23 @@ export function PropertyDetailPage() {
               ) : (
                 <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-zinc-300 dark:text-zinc-700">
                   <ImageOff className="w-14 h-14" />
-                  <span className="text-sm">لا توجد صور</span>
+                  <span className="text-sm">لا توجد وسائط</span>
                 </div>
               )}
             </div>
-            {imgs.length > 1 && (
+
+            {mediaItems.length > 1 && (
               <div className="flex gap-2 p-3 overflow-x-auto bg-zinc-50 dark:bg-zinc-900/50">
-                {imgs.map((url, i) => (
-                  <button key={i} onClick={() => setActiveImg(i)}
-                    className={`flex-shrink-0 w-16 h-12 rounded overflow-hidden border-2 transition ${i === activeImg ? 'border-teal-500' : 'border-transparent opacity-60 hover:opacity-100'}`}>
-                    <img src={url} alt="" className="w-full h-full object-cover" />
+                {mediaItems.map((item, i) => (
+                  <button key={i} onClick={() => setActiveMedia(i)}
+                    className={`flex-shrink-0 w-16 h-12 rounded overflow-hidden border-2 transition ${i === activeMedia ? 'border-teal-500' : 'border-transparent opacity-60 hover:opacity-100'}`}>
+                    {item.type === 'video' ? (
+                      <div className="w-full h-full bg-zinc-800 flex items-center justify-center">
+                        <PlayCircle className="w-6 h-6 text-white/80" />
+                      </div>
+                    ) : (
+                      <img src={item.url} alt="" className="w-full h-full object-cover" />
+                    )}
                   </button>
                 ))}
               </div>
@@ -467,6 +534,93 @@ export function PropertyDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* ── Lightbox ─────────────────────────────────────────────────────── */}
+      {lightboxOpen && mediaItems.length > 0 && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+          onClick={() => setLightboxOpen(false)}
+        >
+          {/* close */}
+          <button
+            onClick={() => setLightboxOpen(false)}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition z-10"
+          >
+            <X className="w-6 h-6" />
+          </button>
+
+          {/* counter */}
+          {mediaItems.length > 1 && (
+            <span className="absolute top-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-sm px-3 py-1 rounded-full z-10">
+              {activeMedia + 1} / {mediaItems.length}
+            </span>
+          )}
+
+          {/* media */}
+          <div
+            className="relative max-w-5xl max-h-[90vh] w-full mx-4 flex items-center justify-center"
+            onClick={e => e.stopPropagation()}
+          >
+            {mediaItems[activeMedia].type === 'video' ? (
+              <video
+                key={mediaItems[activeMedia].url}
+                src={mediaItems[activeMedia].url}
+                controls
+                autoPlay
+                className="max-h-[90vh] max-w-full rounded-lg"
+              />
+            ) : (
+              <img
+                src={mediaItems[activeMedia].url}
+                alt={property.title}
+                className="max-h-[90vh] max-w-full object-contain rounded-lg select-none"
+              />
+            )}
+          </div>
+
+          {/* prev / next */}
+          {mediaItems.length > 1 && (
+            <>
+              <button
+                onClick={e => { e.stopPropagation(); setActiveMedia(p => (p - 1 + mediaItems.length) % mediaItems.length) }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+              >
+                <ChevronLeft className="w-7 h-7" />
+              </button>
+              <button
+                onClick={e => { e.stopPropagation(); setActiveMedia(p => (p + 1) % mediaItems.length) }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition"
+              >
+                <ChevronRight className="w-7 h-7" />
+              </button>
+            </>
+          )}
+
+          {/* thumbnails strip */}
+          {mediaItems.length > 1 && (
+            <div
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 px-3 py-2 rounded-xl bg-black/50 overflow-x-auto max-w-[90vw]"
+              onClick={e => e.stopPropagation()}
+            >
+              {mediaItems.map((item, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveMedia(i)}
+                  className={`flex-shrink-0 w-14 h-10 rounded overflow-hidden border-2 transition ${i === activeMedia ? 'border-teal-400' : 'border-transparent opacity-50 hover:opacity-90'}`}
+                >
+                  {item.type === 'video' ? (
+                    <div className="w-full h-full bg-zinc-700 flex items-center justify-center">
+                      <PlayCircle className="w-5 h-5 text-white/80" />
+                    </div>
+                  ) : (
+                    <img src={item.url} alt="" className="w-full h-full object-cover" />
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* ── Confirm dialog ────────────────────────────────────────────────── */}
       <AlertDialog open={confirm !== null} onOpenChange={open => !open && setConfirm(null)}>

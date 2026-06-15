@@ -108,10 +108,11 @@ export function PropertiesPage() {
         header: "العقار",
         cell: ({ row }) => {
           const property = row.original
-          const firstImage = Array.isArray(property.images) ? property.images[0] : null
-          const imageUrl = property.cover_image || property.image || property.thumbnail ||
-            property.main_image || property.photo ||
-            (firstImage && (firstImage.url || firstImage.path || firstImage.src || (typeof firstImage === 'string' ? firstImage : null)))
+          const primaryImg = property.primary_image
+          const firstImg = Array.isArray(property.images) ? property.images[0] : null
+          const getUrl = (img: any) => img?.media_url || img?.image_url || img?.url || img?.path || img?.src || (typeof img === 'string' ? img : '')
+          const imageUrl = getUrl(primaryImg) || getUrl(firstImg) ||
+            property.cover_image || property.image || property.thumbnail || property.main_image || property.photo || ''
           const title = property.title || property.name_ar || property.name || 'عقار بدون عنوان'
           return (
             <div className="flex items-center gap-3">
@@ -172,8 +173,8 @@ export function PropertiesPage() {
           const property = row.original
           return (
             <div className="flex flex-col">
-              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{property.user?.name || property.owner_name || 'غير معروف'}</span>
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">{property.user?.user_type === 'office' ? 'مكتب عقاري' : 'مالك / عميل'}</span>
+              <span className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{property.owner?.name || property.user?.name || property.owner_name || 'غير معروف'}</span>
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">{(property.owner?.user_type || property.user?.user_type) === 'office' ? 'مكتب عقاري' : 'مالك / عميل'}</span>
             </div>
           )
         },
