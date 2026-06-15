@@ -227,7 +227,7 @@ export function UsersPage() {
             className="bg-teal-600 hover:bg-teal-700 text-white gap-2"
           >
             <UserPlus className="w-4 h-4" />
-            إضافة مستخدم
+            إضافة مشرف
           </Button>
         </div>
       </div>

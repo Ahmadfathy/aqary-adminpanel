@@ -10,7 +10,7 @@ export function unwrapList(response: any, keys: string[] = []) {
 }
 
 export function unwrapItem(response: any, keys: string[] = []) {
-  let data = response?.data?.data?.data || response?.data?.data || response?.data || {}
+  const data = response?.data?.data?.data || response?.data?.data || response?.data || {}
   for (const key of keys) {
     if (data?.[key]) return data[key]
   }

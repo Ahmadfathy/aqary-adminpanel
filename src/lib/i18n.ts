@@ -34,7 +34,7 @@ if (storedLang) {
     if (parsed && parsed.state && parsed.state.language) {
       initialLang = parsed.state.language
     }
-  } catch (e) {
+  } catch {
     // Ignore error
   }
 }
