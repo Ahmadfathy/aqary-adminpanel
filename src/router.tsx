@@ -39,11 +39,27 @@ import { LoginPage } from './pages/auth/login'
 import { PropertiesPage } from './pages/properties'
 import { PropertyDetailPage } from './pages/properties/detail'
 import { RealEstateOfficesPage } from './pages/users/offices'
+import { StaticLayout } from './components/layout/StaticLayout'
+import { TermsPage } from './pages/static/terms'
+import { PrivacyPage } from './pages/static/privacy'
 
 export const router = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />,
+  },
+  {
+    element: <StaticLayout />,
+    children: [
+      {
+        path: '/terms',
+        element: <TermsPage />,
+      },
+      {
+        path: '/privacy',
+        element: <PrivacyPage />,
+      },
+    ],
   },
   {
     path: '/',
