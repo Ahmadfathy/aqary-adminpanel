@@ -512,23 +512,39 @@
     "title": "Contact Us",
     "subtitle": "Have a question or need help? Our team is here for you",
     "seeAlso": "See also our",
-    "sections": {
+    "info": {
+      "heading": "Contact Us",
       "phone": {
         "title": "Call Us",
-        "content": "Reach our support team directly by phone:\n+964 XXX XXX XXXX\nAvailable Sunday - Thursday, 9:00 AM - 5:00 PM"
+        "content": "+964 XXX XXX XXXX\n+964 XXX XXX XXXX"
       },
       "email": {
-        "title": "Email Us",
-        "content": "Send us your questions or feedback anytime:\ninfo@dari.com\nWe usually respond within 24 hours"
+        "title": "Email Address",
+        "content": "info@dari.com\nsupport@dari.com"
       },
       "address": {
-        "title": "Visit Our Office",
-        "content": "Dari Headquarters\nBaghdad, Iraq"
+        "title": "Office Location",
+        "content": "Dari Headquarters, Baghdad, Iraq"
       },
-      "hours": {
-        "title": "Working Hours",
-        "content": "Sunday - Thursday: 9:00 AM - 5:00 PM\nFriday - Saturday: Closed"
+      "social": {
+        "title": "Follow Us"
       }
+    },
+    "form": {
+      "title": "Send a Message",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "Your First Name",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "Your Last Name",
+      "phone": "Phone Number",
+      "phonePlaceholder": "Phone number",
+      "email": "Email",
+      "emailPlaceholder": "Email",
+      "message": "Write Your Message",
+      "messagePlaceholder": "Write your message here...",
+      "submit": "Submit Now",
+      "submitting": "Sending...",
+      "success": "Thank you! Your message has been sent. We'll get back to you soon."
     }
   }
 }

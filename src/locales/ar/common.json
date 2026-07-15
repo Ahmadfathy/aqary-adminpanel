@@ -512,23 +512,39 @@
     "title": "تواصل معنا",
     "subtitle": "هل لديك سؤال أو تحتاج مساعدة؟ فريقنا هنا من أجلك",
     "seeAlso": "اطلع أيضاً على",
-    "sections": {
+    "info": {
+      "heading": "تواصل معنا",
       "phone": {
         "title": "اتصل بنا",
-        "content": "تواصل مع فريق الدعم مباشرة عبر الهاتف:\n+964 XXX XXX XXXX\nمتاحون من الأحد إلى الخميس، 9:00 صباحاً - 5:00 مساءً"
+        "content": "+964 XXX XXX XXXX\n+964 XXX XXX XXXX"
       },
       "email": {
-        "title": "راسلنا",
-        "content": "أرسل لنا أسئلتك أو ملاحظاتك في أي وقت:\ninfo@dari.com\nنقوم عادة بالرد خلال 24 ساعة"
+        "title": "البريد الإلكتروني",
+        "content": "info@dari.com\nsupport@dari.com"
       },
       "address": {
-        "title": "زوروا مكتبنا",
-        "content": "المقر الرئيسي لداري\nبغداد، العراق"
+        "title": "موقع المكتب",
+        "content": "المقر الرئيسي لداري، بغداد، العراق"
       },
-      "hours": {
-        "title": "ساعات العمل",
-        "content": "الأحد - الخميس: 9:00 صباحاً - 5:00 مساءً\nالجمعة - السبت: مغلق"
+      "social": {
+        "title": "تابعنا"
       }
+    },
+    "form": {
+      "title": "أرسل رسالة",
+      "firstName": "الاسم الأول",
+      "firstNamePlaceholder": "اسمك الأول",
+      "lastName": "اسم العائلة",
+      "lastNamePlaceholder": "اسم عائلتك",
+      "phone": "رقم الهاتف",
+      "phonePlaceholder": "رقم الهاتف",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "البريد الإلكتروني",
+      "message": "اكتب رسالتك",
+      "messagePlaceholder": "اكتب رسالتك هنا...",
+      "submit": "إرسال الآن",
+      "submitting": "جارٍ الإرسال...",
+      "success": "شكراً لك! تم إرسال رسالتك بنجاح. سنتواصل معك قريباً."
     }
   }
 }
