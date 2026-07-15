@@ -42,6 +42,7 @@ import { RealEstateOfficesPage } from './pages/users/offices'
 import { StaticLayout } from './components/layout/StaticLayout'
 import { TermsPage } from './pages/static/terms'
 import { PrivacyPage } from './pages/static/privacy'
+import { ContactPage } from './pages/static/contact'
 
 export const router = createBrowserRouter([
   {
@@ -58,6 +59,10 @@ export const router = createBrowserRouter([
       {
         path: '/privacy',
         element: <PrivacyPage />,
+      },
+      {
+        path: '/contact',
+        element: <ContactPage />,
       },
     ],
   },

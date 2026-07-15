@@ -87,7 +87,7 @@ export function LoginPage() {
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             className="w-20 h-20 sm:w-24 sm:h-24 bg-white/90 rounded-2xl mx-auto flex items-center justify-center mb-4 sm:mb-6 shadow-lg shadow-teal-500/20 p-3"
           >
-            <img src={logo} alt="Aqary Logo" className="w-full h-full object-contain drop-shadow-md" />
+            <img src={logo} alt="Dari Logo" className="w-full h-full object-contain drop-shadow-md" />
           </motion.div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">{t('auth.welcome')}</h1>
           <p className="text-slate-300 text-xs sm:text-sm">{t('auth.subtitle')}</p>

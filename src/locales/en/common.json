@@ -13,7 +13,7 @@
   "home": "Home",
 
   "auth": {
-    "welcome": "Welcome to Aqary",
+    "welcome": "Welcome to Dari",
     "subtitle": "Sign in to continue to the dashboard",
     "phone": "Phone Number",
     "password": "Password",
@@ -436,23 +436,24 @@
   "static": {
     "termsOfService": "Terms of Service",
     "privacyPolicy": "Privacy Policy",
+    "contactUs": "Contact Us",
     "allRightsReserved": "All rights reserved"
   },
 
   "terms": {
     "title": "Terms of Service",
-    "subtitle": "Please read these terms and conditions carefully before using the Aqary platform",
+    "subtitle": "Please read these terms and conditions carefully before using the Dari platform",
     "lastUpdated": "Last Updated",
     "lastUpdatedDate": "June 25, 2026",
     "seeAlso": "See also our",
     "sections": {
       "acceptance": {
         "title": "Acceptance of Terms",
-        "content": "By using the Aqary platform, you agree to be bound by these terms and conditions. If you do not agree to any part of these terms, please do not use the platform.\n\nAqary reserves the right to modify these terms at any time. Users will be notified of any material changes via email or through a notice on the platform."
+        "content": "By using the Dari platform, you agree to be bound by these terms and conditions. If you do not agree to any part of these terms, please do not use the platform.\n\nDari reserves the right to modify these terms at any time. Users will be notified of any material changes via email or through a notice on the platform."
       },
       "services": {
         "title": "Services Provided",
-        "content": "Aqary provides a real estate management and advertising platform that includes:\n• Listing and managing properties for sale and rent\n• Comprehensive admin dashboard\n• Analytics and reporting tools\n• User management and permissions\n• Content management system"
+        "content": "Dari provides a real estate management and advertising platform that includes:\n• Listing and managing properties for sale and rent\n• Comprehensive admin dashboard\n• Analytics and reporting tools\n• User management and permissions\n• Content management system"
       },
       "userObligations": {
         "title": "User Obligations",
@@ -460,22 +461,22 @@
       },
       "liability": {
         "title": "Limitation of Liability",
-        "content": "Aqary shall not be liable for any direct or indirect damages resulting from the use of the platform. Services are provided \"as is\" without any express or implied warranties.\n\nAqary does not guarantee the accuracy or completeness of real estate information published by users."
+        "content": "Dari shall not be liable for any direct or indirect damages resulting from the use of the platform. Services are provided \"as is\" without any express or implied warranties.\n\nDari does not guarantee the accuracy or completeness of real estate information published by users."
       },
       "intellectualProperty": {
         "title": "Intellectual Property",
-        "content": "All intellectual property rights related to the Aqary platform, including design, logos, software, and content, are owned by Aqary.\n\nNo part of the platform may be copied, distributed, or modified without prior written permission."
+        "content": "All intellectual property rights related to the Dari platform, including design, logos, software, and content, are owned by Dari.\n\nNo part of the platform may be copied, distributed, or modified without prior written permission."
       },
       "contact": {
         "title": "Contact Us",
-        "content": "For any inquiries about the Terms of Service, please contact us at:\n• Email: support@aqary.com\n• Phone: +964 XXX XXX XXXX"
+        "content": "For any inquiries about the Terms of Service, please contact us at:\n• Email: support@dari.com\n• Phone: +964 XXX XXX XXXX"
       }
     }
   },
 
   "privacy": {
     "title": "Privacy Policy",
-    "subtitle": "At Aqary, we value your privacy and are committed to protecting your personal data",
+    "subtitle": "At Dari, we value your privacy and are committed to protecting your personal data",
     "lastUpdated": "Last Updated",
     "lastUpdatedDate": "June 25, 2026",
     "seeAlso": "See also our",
@@ -494,7 +495,7 @@
       },
       "sharing": {
         "title": "Data Sharing",
-        "content": "We do not sell your personal data to third parties. We may share your data only in the following cases:\n• With your explicit consent\n• With trusted service providers who help us operate the platform\n• When required by competent legal authorities\n• To protect the rights of Aqary and its users"
+        "content": "We do not sell your personal data to third parties. We may share your data only in the following cases:\n• With your explicit consent\n• With trusted service providers who help us operate the platform\n• When required by competent legal authorities\n• To protect the rights of Dari and its users"
       },
       "retention": {
         "title": "Data Retention",
@@ -502,7 +503,31 @@
       },
       "contact": {
         "title": "Contact Us",
-        "content": "For any inquiries about our Privacy Policy or to exercise your data rights, please contact us at:\n• Email: privacy@aqary.com\n• Phone: +964 XXX XXX XXXX"
+        "content": "For any inquiries about our Privacy Policy or to exercise your data rights, please contact us at:\n• Email: privacy@dari.com\n• Phone: +964 XXX XXX XXXX"
+      }
+    }
+  },
+
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Have a question or need help? Our team is here for you",
+    "seeAlso": "See also our",
+    "sections": {
+      "phone": {
+        "title": "Call Us",
+        "content": "Reach our support team directly by phone:\n+964 XXX XXX XXXX\nAvailable Sunday - Thursday, 9:00 AM - 5:00 PM"
+      },
+      "email": {
+        "title": "Email Us",
+        "content": "Send us your questions or feedback anytime:\ninfo@dari.com\nWe usually respond within 24 hours"
+      },
+      "address": {
+        "title": "Visit Our Office",
+        "content": "Dari Headquarters\nBaghdad, Iraq"
+      },
+      "hours": {
+        "title": "Working Hours",
+        "content": "Sunday - Thursday: 9:00 AM - 5:00 PM\nFriday - Saturday: Closed"
       }
     }
   }
